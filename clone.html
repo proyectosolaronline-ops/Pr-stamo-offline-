@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEBUG - Test Google Sheets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover { background: #45a049; }
+        .error { background: #ffebee; color: #c62828; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .info { background: #e3f2fd; color: #1565c0; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 DEBUG - Test Google Sheets</h1>
+    
+    <div class="box">
+        <h2>Test de Conexión</h2>
+        <button onclick="testConexion()">🧪 Test Básico</button>
+        <div id="testResult"></div>
+    </div>
+
+    <div class="box">
+        <h2>Leer Hoja por Hoja</h2>
+        <button onclick="leerHoja('Dias')">📅 Leer Dias</button>
+        <button onclick="leerHoja('Capital')">💰 Leer Capital</button>
+        <button onclick="leerHoja('Interes')">📊 Leer Interes</button>
+        <button onclick="leerHoja('Banner')">🎯 Leer Banner</button>
+        <div id="hojaResult"></div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1pQrVe2O_NwgD0YdD_TcpVxwK1QNE1dw1kSjz-7kSTgU';
+        const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?`;
+
+        async function testConexion() {
+            const div = document.getElementById('testResult');
+            div.innerHTML = '<div class="info">⏳ Probando conexión...</div>';
+            
+            try {
+                console.log('🔍 Probando URL base:', BASE_URL);
+                
+                const url = BASE_URL + 'tq=SELECT%20A';
+                console.log('📡 URL completa:', url);
+                
+                const response = await fetch(url);
+                console.log('✅ Response status:', response.status);
+                
+                const text = await response.text();
+                console.log('📄 Response text (primeros 200 chars):', text.substring(0, 200));
+                
+                if (text.includes('google.visualization.Query.setResponse')) {
+                    div.innerHTML = '<div class="success">✅ Conexión exitosa con Google Sheets</div>';
+                } else {
+                    div.innerHTML = '<div class="error">❌ Respuesta inesperada</div><pre>' + text.substring(0, 500) + '</pre>';
+                }
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                div.innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function leerHoja(nombreHoja) {
+            const div = document.getElementById('hojaResult');
+            div.innerHTML = `<div class="info">⏳ Leyendo hoja "${nombreHoja}"...</div>`;
+            
+            try {
+                console.log(`\n📖 ============== Leyendo ${nombreHoja} ==============`);
+                
+                const query = encodeURIComponent(`SELECT A WHERE A IS NOT NULL`);
+                const url = `${BASE_URL}sheet=${nombreHoja}&tq=${query}`;
+                
+                console.log('📡 URL:', url);
+                
+                const response = await fetch(url);
+                console.log('✅ Status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const text = await response.text();
+                console.log('📄 Response length:', text.length);
+                console.log('📄 Response start:', text.substring(0, 100));
+                
+                // Extraer JSON
+                if (!text.includes('google.visualization.Query.setResponse')) {
+                    throw new Error('Respuesta no válida de Google Sheets');
+                }
+                
+                const jsonString = text.substring(47).slice(0, -2);
+                console.log('📄 JSON extraído (primeros 200 chars):', jsonString.substring(0, 200));
+                
+                const data = JSON.parse(jsonString);
+                console.log('✅ Data parseada:', data);
+                
+                if (data.status === 'error') {
+                    throw new Error(`Error de Google Sheets: ${data.errors?.[0]?.detailed_message || 'Desconocido'}`);
+                }
+                
+                const rows = data.table?.rows || [];
+                console.log(`✅ Filas encontradas: ${rows.length}`);
+                
+                let html = `<div class="success">✅ Hoja "${nombreHoja}": ${rows.length} filas</div>`;
+                html += '<pre>';
+                
+                rows.forEach((row, idx) => {
+                    const valor = row?.c?.[0]?.v;
+                    const formato = row?.c?.[0]?.f;
+                    console.log(`  A${idx + 1}: valor="${valor}", formato="${formato}"`);
+                    html += `A${idx + 1}: ${formato || valor}\n`;
+                });
+                
+                html += '</pre>';
+                
+                div.innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ ERROR:', error);
+                console.error('❌ Stack:', error.stack);
+                div.innerHTML = `<div class="error">❌ Error al leer "${nombreHoja}":<br>${error.message}</div>`;
+            }
+        }
+
+        // Log de inicio
+        console.log('🚀 DEBUG iniciado');
+        console.log('📊 Sheet ID:', SHEET_ID);
+        console.log('🌐 Online:', navigator.onLine);
+    </script>
+</body>
+</html>
