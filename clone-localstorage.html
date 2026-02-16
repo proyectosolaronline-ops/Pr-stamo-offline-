@@ -2,93 +2,63 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST - Verificar LocalStorage Clone</title>
+    <title>TEST - Datos REALES de Google Sheets</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #f0f0f0;
-        }
-        .test-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h2 { color: #667eea; }
-        .success { color: green; font-weight: bold; }
-        .error { color: red; font-weight: bold; }
-        .warning { color: orange; font-weight: bold; }
-        .data { 
-            background: #f8f9fa; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 0.9em;
-        }
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
+        body { font-family: Arial; max-width: 900px; margin: 20px auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .container { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h1 { color: #667eea; text-align: center; }
+        .box { background: #f8f9fa; padding: 20px; margin: 15px 0; border-radius: 10px; border: 2px solid #e0e0e0; }
+        button { background: #667eea; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; margin: 5px; font-weight: 600; }
         button:hover { background: #5568d3; }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        pre {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
+        .success { color: #28a745; font-weight: bold; padding: 10px; background: #d4edda; border-radius: 5px; margin: 5px 0; }
+        .error { color: #dc3545; font-weight: bold; padding: 10px; background: #f8d7da; border-radius: 5px; margin: 5px 0; }
+        .warning { color: #856404; padding: 10px; background: #fff3cd; border-radius: 5px; margin: 5px 0; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.9em; }
+        .data-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .data-box { background: white; padding: 15px; border-radius: 8px; border: 2px solid #667eea; }
+        .data-box h4 { color: #667eea; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>🧪 TEST - Verificar Clone LocalStorage</h1>
-    
-    <div class="test-box">
-        <h2>📥 Cargar Datos desde Google Sheets</h2>
-        <button onclick="cargarDatos()">🔄 Cargar Datos Ahora</button>
-        <button onclick="limpiarLocalStorage()" class="btn-danger">🗑️ Limpiar localStorage</button>
-        <button onclick="verificarEstructura()">🔍 Verificar Estructura</button>
-        <div id="status"></div>
-    </div>
+    <div class="container">
+        <h1>🔬 TEST - Leer Datos REALES de Google Sheets</h1>
+        
+        <div class="box">
+            <h2>📊 Paso 1: Ver Datos en Google Sheets</h2>
+            <button onclick="leerDatosReales()">🔍 Leer Datos de Sheets</button>
+            <div id="datosReales"></div>
+        </div>
 
-    <div class="test-box">
-        <h2>📊 Datos en LocalStorage:</h2>
-        <div id="localStorageData"></div>
-        <button onclick="mostrarLocalStorage()">🔄 Actualizar Vista</button>
-    </div>
+        <div class="box">
+            <h2>💾 Paso 2: Comparar con localStorage</h2>
+            <button onclick="compararDatos()">🔄 Comparar Sheets vs localStorage</button>
+            <div id="comparacion"></div>
+        </div>
 
-    <div class="test-box">
-        <h2>🧮 Simulación de Cálculo:</h2>
-        <p>Prueba si los datos funcionarían en el simulador real</p>
-        <select id="testDias" onchange="simularCalculo()">
-            <option value="27">27 días</option>
-            <option value="40">40 días</option>
-            <option value="54">54 días</option>
-            <option value="68">68 días</option>
-        </select>
-        <input type="number" id="testCapital" value="5000" onchange="simularCalculo()" placeholder="Capital">
-        <button onclick="simularCalculo()">Calcular</button>
-        <div id="calculoResult"></div>
+        <div class="box">
+            <h2>✅ Paso 3: Guardar en localStorage</h2>
+            <button onclick="guardarEnCache()">💾 Guardar Datos Reales en Cache</button>
+            <button onclick="limpiarCache()" style="background: #dc3545;">🗑️ Limpiar Cache</button>
+            <div id="guardadoStatus"></div>
+        </div>
+
+        <div class="box">
+            <h2>📱 Paso 4: Ver localStorage Actual</h2>
+            <button onclick="mostrarCache()">👁️ Ver Cache</button>
+            <div id="cacheActual"></div>
+        </div>
     </div>
 
     <script>
         const SHEET_ID = '19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
+        
+        // Variable global para almacenar datos leídos de Sheets
+        let datosDesdeSheets = {
+            dias: null,
+            capital: null,
+            interes: null,
+            banner: null
+        };
 
         function saveToCache(key, data) {
             const cacheData = {
@@ -106,68 +76,79 @@
                 const cacheData = JSON.parse(cached);
                 return cacheData.data;
             } catch (error) {
+                console.error(`❌ Error al leer cache: ${key}`, error);
                 return null;
             }
         }
 
-        async function loadColumnFromSheet(sheetName) {
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+        // Leer columna A de una hoja
+        async function leerColumnaA(nombreHoja) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${nombreHoja}`;
             
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
-
+            console.log(`📥 Leyendo hoja: ${nombreHoja}`);
+            console.log(`🔗 URL: ${url}`);
+            
             try {
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeout);
-
-                if (!response.ok) throw new Error('Error en ' + sheetName);
-
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const text = await response.text();
-                let jsonStr = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);[\s\S]*$/, '');
+                const jsonStr = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);[\s\S]*$/, '');
                 const json = JSON.parse(jsonStr);
-
+                
                 const rows = json.table.rows || [];
+                console.log(`📊 ${nombreHoja}: ${rows.length} filas encontradas`);
+                
                 const valores = [];
-
-                for (let i = 0; i < rows.length; i++) {
-                    const valor = rows[i]?.c?.[0]?.v;
+                rows.forEach((row, idx) => {
+                    const valor = row?.c?.[0]?.v;
+                    console.log(`  Fila ${idx + 1}: ${valor}`);
                     if (valor != null) {
                         const num = parseFloat(valor);
-                        if (!isNaN(num)) valores.push(num);
+                        if (!isNaN(num)) {
+                            valores.push(num);
+                        }
                     }
-                }
-
+                });
+                
+                console.log(`✅ ${nombreHoja} valores finales:`, valores);
                 return valores;
+                
             } catch (error) {
-                clearTimeout(timeout);
+                console.error(`❌ Error en ${nombreHoja}:`, error);
                 throw error;
             }
         }
 
-        // ✅ NUEVA FUNCIÓN: Cargar Intereses como OBJETO
-        async function loadInteresesFromSheet() {
+        // Leer columnas A y B para Interes
+        async function leerInteres() {
             const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Interes`;
             
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
-
+            console.log(`📥 Leyendo hoja: Interes (2 columnas)`);
+            
             try {
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeout);
-
-                if (!response.ok) throw new Error('Error al cargar Interes');
-
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
                 const text = await response.text();
                 const jsonStr = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);[\s\S]*$/, '');
                 const json = JSON.parse(jsonStr);
-
+                
                 const rows = json.table.rows || [];
+                console.log(`📊 Interes: ${rows.length} filas encontradas`);
+                
                 const interesesObj = {};
-
-                // Leer filas (A = días, B = interés)
-                rows.forEach(row => {
-                    const dias = row?.c?.[0]?.v;  // Columna A
-                    const interes = row?.c?.[1]?.v; // Columna B
+                rows.forEach((row, idx) => {
+                    const dias = row?.c?.[0]?.v;
+                    const interes = row?.c?.[1]?.v;
+                    
+                    console.log(`  Fila ${idx + 1}: Dias=${dias}, Interes=${interes}`);
                     
                     if (dias != null && interes != null) {
                         const diasNum = parseFloat(dias);
@@ -178,220 +159,197 @@
                         }
                     }
                 });
-
-                if (Object.keys(interesesObj).length === 0) {
-                    throw new Error('No se encontraron datos válidos de interés');
-                }
-
+                
+                console.log(`✅ Interes objeto final:`, interesesObj);
                 return interesesObj;
+                
             } catch (error) {
-                clearTimeout(timeout);
+                console.error(`❌ Error en Interes:`, error);
                 throw error;
             }
         }
 
-        async function cargarDatos() {
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerHTML = '<p>⏳ Cargando datos desde Google Sheets...</p>';
-
+        // Leer Banner (celda A2)
+        async function leerBanner() {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Banner`;
+            
+            console.log(`📥 Leyendo hoja: Banner`);
+            
             try {
-                // DIAS
-                statusDiv.innerHTML += '<p>📅 Cargando Dias...</p>';
-                const diasData = await loadColumnFromSheet('Dias');
-                if (!diasData || diasData.length === 0) {
-                    throw new Error('No se encontraron días en la hoja');
-                }
-                saveToCache('dias', diasData);
-                statusDiv.innerHTML += `<p class="success">✅ Dias cargados: ${JSON.stringify(diasData)}</p>`;
-
-                // CAPITAL
-                statusDiv.innerHTML += '<p>💰 Cargando Capital...</p>';
-                const capitalData = await loadColumnFromSheet('Capital');
-                if (!capitalData || capitalData.length === 0) {
-                    throw new Error('No se encontraron capitales en la hoja');
-                }
-                saveToCache('capital', capitalData);
-                statusDiv.innerHTML += `<p class="success">✅ Capital cargado: ${JSON.stringify(capitalData)}</p>`;
-
-                // INTERES (CORREGIDO)
-                statusDiv.innerHTML += '<p>📊 Cargando Interes...</p>';
-                const interesData = await loadInteresesFromSheet(); // ✅ Usa la función correcta
-                saveToCache('interes', interesData);
-                statusDiv.innerHTML += `<p class="success">✅ Interes cargado: <pre>${JSON.stringify(interesData, null, 2)}</pre></p>`;
-
-                // BANNER
-                statusDiv.innerHTML += '<p>🎌 Cargando Banner...</p>';
-                const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Banner`;
-                const response = await fetch(gvizUrl);
+                const response = await fetch(url);
                 const text = await response.text();
                 const jsonStr = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);[\s\S]*$/, '');
                 const json = JSON.parse(jsonStr);
+                
                 const rows = json.table.rows || [];
                 
                 if (rows.length > 1) {
-                    const mensajeBanner = rows[1]?.c?.[0]?.v;
-                    const bannerConfig = {
-                        activo: mensajeBanner && mensajeBanner.trim() !== '',
-                        texto: mensajeBanner || ''
+                    const mensaje = rows[1]?.c?.[0]?.v || '';
+                    console.log(`✅ Banner mensaje:`, mensaje);
+                    
+                    return {
+                        activo: mensaje.trim() !== '',
+                        texto: mensaje
                     };
-                    saveToCache('banner_config', bannerConfig);
-                    statusDiv.innerHTML += `<p class="success">✅ Banner cargado: "${mensajeBanner}"</p>`;
                 } else {
-                    statusDiv.innerHTML += `<p class="warning">⚠️ Banner no encontrado (A2 vacío?)</p>`;
+                    return {
+                        activo: false,
+                        texto: ''
+                    };
                 }
-
-                statusDiv.innerHTML += '<p class="success"><strong>🎉 ¡TODOS LOS DATOS CARGADOS EXITOSAMENTE!</strong></p>';
-                mostrarLocalStorage();
-
-            } catch (error) {
-                statusDiv.innerHTML += `<p class="error">❌ Error: ${error.message}</p>`;
-                console.error('Error completo:', error);
-            }
-        }
-
-        function mostrarLocalStorage() {
-            const div = document.getElementById('localStorageData');
-            const dias = getFromCache('dias');
-            const capital = getFromCache('capital');
-            const interes = getFromCache('interes');
-            const banner = getFromCache('banner_config');
-
-            div.innerHTML = `
-                <div class="data">
-                    <strong>📅 DIAS:</strong><br>
-                    ${dias ? `<pre>${JSON.stringify(dias, null, 2)}</pre>` : '<span class="error">❌ No hay datos</span>'}
-                </div>
-                <div class="data">
-                    <strong>💰 CAPITAL:</strong><br>
-                    ${capital ? `<pre>${JSON.stringify(capital, null, 2)}</pre>` : '<span class="error">❌ No hay datos</span>'}
-                </div>
-                <div class="data">
-                    <strong>📊 INTERES:</strong><br>
-                    ${interes ? `<pre>${JSON.stringify(interes, null, 2)}</pre>` : '<span class="error">❌ No hay datos</span>'}
-                </div>
-                <div class="data">
-                    <strong>🎌 BANNER:</strong><br>
-                    ${banner ? `<pre>${JSON.stringify(banner, null, 2)}</pre>` : '<span class="error">❌ No hay datos</span>'}
-                </div>
-            `;
-        }
-
-        function verificarEstructura() {
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerHTML = '<h3>🔍 Verificando Estructura de Datos...</h3>';
-
-            const dias = getFromCache('dias');
-            const capital = getFromCache('capital');
-            const interes = getFromCache('interes');
-            const banner = getFromCache('banner_config');
-
-            let errores = [];
-
-            // Verificar DIAS
-            if (!Array.isArray(dias)) {
-                errores.push('❌ DIAS debe ser un array');
-            } else if (dias.length === 0) {
-                errores.push('⚠️ DIAS está vacío');
-            } else {
-                statusDiv.innerHTML += `<p class="success">✅ DIAS: Array con ${dias.length} elementos</p>`;
-            }
-
-            // Verificar CAPITAL
-            if (!Array.isArray(capital)) {
-                errores.push('❌ CAPITAL debe ser un array');
-            } else if (capital.length === 0) {
-                errores.push('⚠️ CAPITAL está vacío');
-            } else {
-                statusDiv.innerHTML += `<p class="success">✅ CAPITAL: Array con ${capital.length} elementos</p>`;
-            }
-
-            // Verificar INTERES (CRÍTICO)
-            if (typeof interes !== 'object' || Array.isArray(interes)) {
-                errores.push('❌ INTERES debe ser un OBJETO (no array)');
-            } else if (Object.keys(interes).length === 0) {
-                errores.push('⚠️ INTERES está vacío');
-            } else {
-                const keys = Object.keys(interes);
-                statusDiv.innerHTML += `<p class="success">✅ INTERES: Objeto con ${keys.length} pares (días: ${keys.join(', ')})</p>`;
                 
-                // Verificar que las claves coincidan con días
-                if (dias && Array.isArray(dias)) {
-                    const diasFaltantes = dias.filter(d => !(d in interes));
-                    if (diasFaltantes.length > 0) {
-                        errores.push(`⚠️ Faltan intereses para días: ${diasFaltantes.join(', ')}`);
-                    }
-                }
-            }
-
-            // Verificar BANNER
-            if (banner && typeof banner === 'object') {
-                if (!('activo' in banner) || !('texto' in banner)) {
-                    errores.push('⚠️ BANNER debe tener propiedades "activo" y "texto"');
-                } else {
-                    statusDiv.innerHTML += `<p class="success">✅ BANNER: Estructura correcta</p>`;
-                }
-            }
-
-            if (errores.length > 0) {
-                statusDiv.innerHTML += '<h4 class="error">⚠️ Errores Encontrados:</h4>';
-                errores.forEach(err => {
-                    statusDiv.innerHTML += `<p class="error">${err}</p>`;
-                });
-            } else {
-                statusDiv.innerHTML += '<p class="success"><strong>✅ Todas las estructuras son correctas</strong></p>';
+            } catch (error) {
+                console.error(`❌ Error en Banner:`, error);
+                throw error;
             }
         }
 
-        function simularCalculo() {
-            const dias = parseInt(document.getElementById('testDias').value);
-            const capital = parseFloat(document.getElementById('testCapital').value);
+        async function leerDatosReales() {
+            const div = document.getElementById('datosReales');
+            div.innerHTML = '<p>⏳ Leyendo datos de Google Sheets...</p>';
+            
+            let html = '<h3>📊 Datos REALES leídos de Google Sheets:</h3>';
+            
+            try {
+                // DIAS
+                html += '<p>📅 Leyendo Dias...</p>';
+                const dias = await leerColumnaA('Dias');
+                datosDesdeSheets.dias = dias;
+                html += `<div class="success">✅ DIAS: ${JSON.stringify(dias)}</div>`;
+                
+                // CAPITAL
+                html += '<p>💰 Leyendo Capital...</p>';
+                const capital = await leerColumnaA('Capital');
+                datosDesdeSheets.capital = capital;
+                html += `<div class="success">✅ CAPITAL: ${JSON.stringify(capital)}</div>`;
+                
+                // INTERES
+                html += '<p>📊 Leyendo Interes...</p>';
+                const interes = await leerInteres();
+                datosDesdeSheets.interes = interes;
+                html += `<div class="success">✅ INTERES:<pre>${JSON.stringify(interes, null, 2)}</pre></div>`;
+                
+                // BANNER
+                html += '<p>🎌 Leyendo Banner...</p>';
+                const banner = await leerBanner();
+                datosDesdeSheets.banner = banner;
+                html += `<div class="success">✅ BANNER: "${banner.texto}"</div>`;
+                
+                html += '<div class="success"><strong>🎉 Todos los datos leídos correctamente</strong></div>';
+                
+            } catch (error) {
+                html += `<div class="error">❌ Error: ${error.message}</div>`;
+                html += `<div class="warning">⚠️ Verifica que las hojas "Dias", "Capital", "Interes" y "Banner" existan en Google Sheets</div>`;
+            }
+            
+            div.innerHTML = html;
+        }
+
+        async function compararDatos() {
+            const div = document.getElementById('comparacion');
+            
+            if (!datosDesdeSheets.dias) {
+                div.innerHTML = '<div class="warning">⚠️ Primero lee los datos de Sheets (Paso 1)</div>';
+                return;
+            }
+            
+            const diasCache = getFromCache('dias');
+            const capitalCache = getFromCache('capital');
+            const interesCache = getFromCache('interes');
+            const bannerCache = getFromCache('banner_config');
+            
+            let html = '<h3>🔄 Comparación:</h3><div class="data-compare">';
+            
+            // DIAS
+            html += '<div class="data-box">';
+            html += '<h4>📅 DIAS</h4>';
+            html += '<strong>Google Sheets:</strong><pre>' + JSON.stringify(datosDesdeSheets.dias, null, 2) + '</pre>';
+            html += '<strong>localStorage:</strong><pre>' + (diasCache ? JSON.stringify(diasCache, null, 2) : '❌ Vacío') + '</pre>';
+            html += '</div>';
+            
+            // CAPITAL
+            html += '<div class="data-box">';
+            html += '<h4>💰 CAPITAL</h4>';
+            html += '<strong>Google Sheets:</strong><pre>' + JSON.stringify(datosDesdeSheets.capital, null, 2) + '</pre>';
+            html += '<strong>localStorage:</strong><pre>' + (capitalCache ? JSON.stringify(capitalCache, null, 2) : '❌ Vacío') + '</pre>';
+            html += '</div>';
+            
+            // INTERES
+            html += '<div class="data-box">';
+            html += '<h4>📊 INTERES</h4>';
+            html += '<strong>Google Sheets:</strong><pre>' + JSON.stringify(datosDesdeSheets.interes, null, 2) + '</pre>';
+            html += '<strong>localStorage:</strong><pre>' + (interesCache ? JSON.stringify(interesCache, null, 2) : '❌ Vacío') + '</pre>';
+            html += '</div>';
+            
+            // BANNER
+            html += '<div class="data-box">';
+            html += '<h4>🎌 BANNER</h4>';
+            html += '<strong>Google Sheets:</strong><pre>' + JSON.stringify(datosDesdeSheets.banner, null, 2) + '</pre>';
+            html += '<strong>localStorage:</strong><pre>' + (bannerCache ? JSON.stringify(bannerCache, null, 2) : '❌ Vacío') + '</pre>';
+            html += '</div>';
+            
+            html += '</div>';
+            
+            div.innerHTML = html;
+        }
+
+        async function guardarEnCache() {
+            const div = document.getElementById('guardadoStatus');
+            
+            if (!datosDesdeSheets.dias) {
+                div.innerHTML = '<div class="error">❌ Primero lee los datos de Sheets (Paso 1)</div>';
+                return;
+            }
+            
+            div.innerHTML = '<p>💾 Guardando en localStorage...</p>';
+            
+            try {
+                saveToCache('dias', datosDesdeSheets.dias);
+                saveToCache('capital', datosDesdeSheets.capital);
+                saveToCache('interes', datosDesdeSheets.interes);
+                saveToCache('banner_config', datosDesdeSheets.banner);
+                
+                div.innerHTML = '<div class="success">✅ Todos los datos guardados en localStorage</div>';
+                mostrarCache();
+                
+            } catch (error) {
+                div.innerHTML = `<div class="error">❌ Error al guardar: ${error.message}</div>`;
+            }
+        }
+
+        function mostrarCache() {
+            const div = document.getElementById('cacheActual');
+            
+            const dias = getFromCache('dias');
+            const capital = getFromCache('capital');
             const interes = getFromCache('interes');
-            const resultDiv = document.getElementById('calculoResult');
-
-            if (!interes) {
-                resultDiv.innerHTML = '<p class="error">❌ No hay datos de interés en cache</p>';
-                return;
-            }
-
-            if (!(dias in interes)) {
-                resultDiv.innerHTML = `<p class="error">❌ No hay tasa de interés definida para ${dias} días</p>`;
-                return;
-            }
-
-            const interesPorc = interes[dias];
-            const interesTotal = capital * (interesPorc / 100);
-            const totalPrestar = capital + interesTotal;
-            const pagoDiario = totalPrestar / dias;
-
-            resultDiv.innerHTML = `
-                <div class="data">
-                    <strong>📊 Resultado del Cálculo:</strong><br>
-                    💰 Capital: $${capital.toFixed(2)}<br>
-                    📈 Interés (${interesPorc}%): $${interesTotal.toFixed(2)}<br>
-                    💵 Total a Pagar: $${totalPrestar.toFixed(2)}<br>
-                    📅 Plazo: ${dias} días<br>
-                    💳 Pago Diario: $${pagoDiario.toFixed(2)}
-                </div>
+            const banner = getFromCache('banner_config');
+            
+            div.innerHTML = `
+                <h3>📱 localStorage Actual:</h3>
+                <pre>DIAS:\n${dias ? JSON.stringify(dias, null, 2) : '❌ Vacío'}\n\n` +
+                `CAPITAL:\n${capital ? JSON.stringify(capital, null, 2) : '❌ Vacío'}\n\n` +
+                `INTERES:\n${interes ? JSON.stringify(interes, null, 2) : '❌ Vacío'}\n\n` +
+                `BANNER:\n${banner ? JSON.stringify(banner, null, 2) : '❌ Vacío'}</pre>
             `;
         }
 
-        function limpiarLocalStorage() {
-            if (confirm('¿Estás seguro de limpiar todos los datos del cache?')) {
+        function limpiarCache() {
+            if (confirm('¿Estás seguro de limpiar TODO el localStorage?')) {
                 localStorage.removeItem('simulador_dias');
                 localStorage.removeItem('simulador_capital');
                 localStorage.removeItem('simulador_interes');
                 localStorage.removeItem('simulador_banner_config');
                 alert('✅ localStorage limpiado');
-                mostrarLocalStorage();
-                document.getElementById('status').innerHTML = '<p class="success">✅ Cache limpiado correctamente</p>';
+                mostrarCache();
             }
         }
 
-        // Cargar al inicio
+        // Mostrar cache al cargar
         window.addEventListener('load', () => {
-            mostrarLocalStorage();
-            console.log('🧪 Test de localStorage iniciado');
-            console.log('Sheet ID:', SHEET_ID);
+            console.log('🧪 Test iniciado - Versión DATOS REALES');
+            console.log('📊 Sheet ID:', SHEET_ID);
+            mostrarCache();
         });
     </script>
 </body>
