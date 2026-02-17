@@ -11,191 +11,95 @@
   --bg:#080b10; --surf:#0f1319; --card:#141a24; --card2:#19202e;
   --b1:#1c2535; --b2:#243047;
   --acc:#00e5b0; --acc2:#00b88d;
-  --blue:#3b82f6; --gold:#f59e0b; --red:#ef4444;
+  --blue:#3b82f6; --gold:#f59e0b;
   --txt:#dce8f5; --mut:#4d617d; --soft:#7a92b0;
   --r:14px; --rs:9px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-tap-highlight-color:transparent}
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--bg);color:var(--txt);
-  min-height:100dvh;overflow-x:hidden;
-}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden}
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 60% 50% at 88% 4%,  rgba(0,229,176,.07) 0%,transparent 65%),
-    radial-gradient(ellipse 50% 60% at 4%  96%, rgba(59,130,246,.05) 0%,transparent 65%);
+    radial-gradient(ellipse 60% 50% at 88% 4%,rgba(0,229,176,.07) 0%,transparent 65%),
+    radial-gradient(ellipse 50% 60% at 4% 96%,rgba(59,130,246,.05) 0%,transparent 65%);
 }
-
-.app{
-  position:relative;z-index:1;
-  max-width:430px;margin:0 auto;
-  padding:0 16px 60px;
-}
+.app{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 16px 60px}
 
 /* ── HEADER ── */
-.hdr{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:22px 0 6px;
-}
-.logo{
-  font-family:'Syne',sans-serif;font-weight:800;
-  font-size:1.28rem;letter-spacing:-.03em;
-}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 0 6px}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.28rem;letter-spacing:-.03em}
 .logo em{color:var(--acc);font-style:normal}
-
-.sdot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--mut);transition:background .4s;
-}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--mut);transition:background .4s}
 .sdot.ok  {background:var(--acc)}
 .sdot.off {background:var(--gold)}
 .sdot.busy{background:var(--blue);animation:pulse .9s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* sync strip */
-.strip-wrap{height:2px;border-radius:99px;background:var(--b1);overflow:hidden;margin-bottom:6px}
-.strip-fill{
-  height:100%;width:0%;border-radius:99px;
-  background:linear-gradient(90deg,var(--acc),var(--blue));
-  transition:width .35s ease, opacity .4s;opacity:0;
-}
-.strip-fill.on{opacity:1}
+/* ── SYNC STRIP 2px ── */
+.sw{height:2px;border-radius:99px;background:var(--b1);overflow:hidden;margin-bottom:6px}
+.sf{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--blue));transition:width .35s,opacity .4s;opacity:0}
+.sf.on{opacity:1}
 
 /* ── BANNER ── */
-.banner{
-  display:none;align-items:center;gap:9px;
-  margin:4px 0 10px;padding:10px 14px;border-radius:var(--rs);
-  background:rgba(0,229,176,.07);border:1px solid rgba(0,229,176,.18);
-  font-size:.83rem;color:var(--acc);
-}
+.banner{display:none;align-items:center;gap:9px;margin:4px 0 10px;padding:10px 14px;border-radius:var(--rs);background:rgba(0,229,176,.07);border:1px solid rgba(0,229,176,.18);font-size:.83rem;color:var(--acc)}
 .banner.show{display:flex}
 
 /* ── SECTION LABEL ── */
-.slabel{
-  font-family:'Syne',sans-serif;font-size:.64rem;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--mut);
-  margin:22px 0 10px;
-}
+.slabel{font-family:'Syne',sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:22px 0 10px}
 
 /* ── CARD ── */
 .card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:20px}
 
 /* ── CHIPS ── */
-.clabel{
-  font-size:.74rem;font-weight:500;color:var(--soft);
-  display:flex;align-items:center;gap:6px;margin-bottom:10px;
-}
+.clabel{font-size:.74rem;font-weight:500;color:var(--soft);display:flex;align-items:center;gap:6px;margin-bottom:10px}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
 .chips.g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-
 .chip{
-  padding:8px 16px;border-radius:99px;
-  border:1.5px solid var(--b2);background:var(--surf);
-  color:var(--soft);font-size:.82rem;font-weight:500;
-  cursor:pointer;user-select:none;
+  padding:8px 16px;border-radius:99px;border:1.5px solid var(--b2);background:var(--surf);
+  color:var(--soft);font-size:.82rem;font-weight:500;cursor:pointer;user-select:none;
   transition:border-color .13s,background .13s,color .13s,transform .1s;
 }
 .chips.g .chip{border-radius:var(--rs);text-align:center;padding:10px 4px}
 .chip:hover{border-color:var(--acc);color:var(--txt)}
 .chip:active{transform:scale(.96)}
-.chip.on{
-  border-color:var(--acc);background:rgba(0,229,176,.12);
-  color:var(--acc);font-weight:600;
-}
-
-/* skeleton */
-.sk{
-  background:linear-gradient(90deg,var(--surf) 25%,var(--card2) 50%,var(--surf) 75%);
-  background-size:200% 100%;animation:sh 1.2s infinite;
-  border-radius:99px;height:36px;
-}
+.chip.on{border-color:var(--acc);background:rgba(0,229,176,.12);color:var(--acc);font-weight:600}
+.sk{background:linear-gradient(90deg,var(--surf) 25%,var(--card2) 50%,var(--surf) 75%);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:99px;height:36px}
 .chips.g .sk{border-radius:var(--rs)}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
 .divider{height:1px;background:var(--b1);margin:0 0 20px}
 
 /* ── RESULTADO EN TIEMPO REAL ── */
-/* Panel siempre visible debajo del selector de capital */
-.result-panel{
-  margin-top:20px;
-  border-radius:var(--r);overflow:hidden;
-  border:1px solid var(--b2);
-  background:var(--card2);
-  transition:border-color .3s, box-shadow .3s;
-}
-.result-panel.active{
-  border-color:rgba(0,229,176,.25);
-  box-shadow:0 0 36px rgba(0,229,176,.07),0 8px 28px rgba(0,0,0,.4);
-}
-
-/* Header del resultado */
-.rh{
-  padding:20px 20px 14px;text-align:center;
-  background:linear-gradient(135deg,rgba(0,229,176,.08) 0%,rgba(59,130,246,.05) 100%);
-  border-bottom:1px solid var(--b1);
-  transition:background .3s;
-}
-.rh.active{background:linear-gradient(135deg,rgba(0,229,176,.11) 0%,rgba(59,130,246,.08) 100%)}
-.rh .rl{font-size:.66rem;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
-.rh .rb{
-  font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;
-  letter-spacing:-.04em;line-height:1;
-  color:var(--mut);transition:color .25s;
-}
-.rh .rb.active{color:var(--acc)}
-.rh .rs{font-size:.76rem;color:var(--mut);margin-top:5px;min-height:1.2em;transition:color .25s}
-.rh .rs.active{color:var(--soft)}
-
-/* Grid métricas */
+.rp{margin-top:20px;border-radius:var(--r);overflow:hidden;border:1px solid var(--b2);background:var(--card2);transition:border-color .3s,box-shadow .3s}
+.rp.on{border-color:rgba(0,229,176,.28);box-shadow:0 0 36px rgba(0,229,176,.08),0 8px 28px rgba(0,0,0,.45)}
+.rh{padding:20px 20px 14px;text-align:center;background:linear-gradient(135deg,rgba(0,229,176,.07) 0%,rgba(59,130,246,.04) 100%);border-bottom:1px solid var(--b1);transition:background .3s}
+.rh.on{background:linear-gradient(135deg,rgba(0,229,176,.12) 0%,rgba(59,130,246,.08) 100%)}
+.rl{font-size:.66rem;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.rb{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--mut);transition:color .25s}
+.rb.on{color:var(--acc)}
+.rs{font-size:.76rem;color:var(--mut);margin-top:5px;min-height:1.2em;transition:color .25s}
+.rs.on{color:var(--soft)}
 .rg{display:grid;grid-template-columns:1fr 1fr}
-.ri{padding:14px 16px;border-right:1px solid var(--b1);border-bottom:1px solid var(--b1);transition:all .2s}
+.ri{padding:14px 16px;border-right:1px solid var(--b1);border-bottom:1px solid var(--b1)}
 .ri:nth-child(2n){border-right:none}
 .ri:nth-last-child(-n+2){border-bottom:none}
 .rik{font-size:.65rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
-.riv{
-  font-family:'Syne',sans-serif;font-size:1.08rem;font-weight:700;
-  color:var(--b2);transition:color .25s;
-}
-.riv.show{color:var(--txt)}
-.riv.show.ac{color:var(--acc)}
-.riv.show.go{color:var(--gold)}
-
-/* Placeholder state */
-.rplaceholder{
-  padding:22px;text-align:center;
-  font-size:.8rem;color:var(--mut);line-height:1.7;
-}
-
-/* footer del resultado */
-.rf{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px;background:var(--surf);font-size:.66rem;color:var(--mut);
-  min-height:30px;
-}
+.riv{font-family:'Syne',sans-serif;font-size:1.08rem;font-weight:700;color:var(--b2);transition:color .25s}
+.riv.v{color:var(--txt)}
+.riv.v.ac{color:var(--acc)}
+.riv.v.go{color:var(--gold)}
+.rf{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--surf);font-size:.66rem;color:var(--mut);min-height:30px}
 .rfd{width:4px;height:4px;border-radius:50%;background:var(--acc);opacity:0;transition:opacity .3s}
-.rfd.show{opacity:1}
+.rfd.v{opacity:1}
 
-/* empty */
+/* ── EMPTY / TOAST ── */
 .empty{padding:20px 0;text-align:center;font-size:.81rem;color:var(--mut);line-height:1.7}
 .empty span{font-size:1.7rem;display:block;margin-bottom:7px;opacity:.35}
-
-/* toast */
-#toast{
-  position:fixed;bottom:20px;left:50%;
-  transform:translateX(-50%) translateY(52px);
-  background:var(--card2);border:1px solid var(--b2);
-  padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);
-  box-shadow:0 8px 24px rgba(0,0,0,.5);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  white-space:nowrap;z-index:200;pointer-events:none;
-}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(52px);background:var(--card2);border:1px solid var(--b2);padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:200;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 @media(max-width:360px){
-  .rh .rb{font-size:2rem}
+  .rb{font-size:2rem}
   .chips.g{grid-template-columns:repeat(2,1fr)}
 }
 </style>
@@ -208,15 +112,12 @@ body::before{
     <div class="sdot" id="sdot"></div>
   </header>
 
-  <div class="strip-wrap"><div class="strip-fill" id="strip"></div></div>
-
+  <div class="sw"><div class="sf" id="strip"></div></div>
   <div class="banner" id="banner"><span>📢</span><span id="bannerTxt"></span></div>
 
   <p class="slabel">Simulador de préstamo</p>
 
   <div class="card">
-
-    <!-- PLAZO -->
     <div class="clabel">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
         <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -233,7 +134,6 @@ body::before{
 
     <div class="divider"></div>
 
-    <!-- CAPITAL -->
     <div class="clabel">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
         <line x1="12" y1="1" x2="12" y2="23"/>
@@ -246,82 +146,124 @@ body::before{
       <div class="sk"></div><div class="sk"></div><div class="sk"></div>
     </div>
 
-    <!-- RESULTADO EN TIEMPO REAL (siempre visible) -->
-    <div class="result-panel" id="resultPanel">
-      <div class="rh" id="rHead">
+    <!-- RESULTADO TIEMPO REAL -->
+    <div class="rp" id="rp">
+      <div class="rh" id="rh">
         <div class="rl">Total a pagar</div>
         <div class="rb" id="rTotal">—</div>
         <div class="rs" id="rSub">Selecciona plazo y capital</div>
       </div>
       <div class="rg">
-        <div class="ri">
-          <div class="rik">Capital</div>
-          <div class="riv" id="rCapital">—</div>
-        </div>
-        <div class="ri">
-          <div class="rik">Tasa</div>
-          <div class="riv ac" id="rTasa">—</div>
-        </div>
-        <div class="ri">
-          <div class="rik">Interés total</div>
-          <div class="riv go" id="rInteres">—</div>
-        </div>
-        <div class="ri">
-          <div class="rik">Pago diario</div>
-          <div class="riv ac" id="rDiario">—</div>
-        </div>
+        <div class="ri"><div class="rik">Capital</div><div class="riv" id="rCap">—</div></div>
+        <div class="ri"><div class="rik">Tasa</div><div class="riv ac" id="rTasa">—</div></div>
+        <div class="ri"><div class="rik">Interés total</div><div class="riv go" id="rInt">—</div></div>
+        <div class="ri"><div class="rik">Pago diario</div><div class="riv ac" id="rDia">—</div></div>
       </div>
       <div class="rf">
         <div class="rfd" id="rDot"></div>
-        <span id="rFooter">Esperando selección…</span>
+        <span id="rFoot">Esperando selección…</span>
       </div>
     </div>
-
   </div>
-
 </div>
 <div id="toast"></div>
 
 <script>
-/* ════════════════════════════════════
+/* ══════════════════════════════════════════════════
+   SERVICE WORKER — se registra a sí mismo desde
+   un Blob. No necesita archivo sw.js externo.
+   Intercepta recargas offline → sirve este HTML
+   desde su propio caché → nunca aparece otra pantalla.
+══════════════════════════════════════════════════ */
+(function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+
+  // Código del SW como string → Blob → URL objeto
+  const swCode = `
+const VER = 'sp-v2';
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(VER).then(c =>
+      // Cachea la URL actual del simulador (sea cual sea su nombre)
+      c.addAll([self.registration.scope])
+    )
+  );
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== VER).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener('message', e => {
+  if (e.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+self.addEventListener('fetch', e => {
+  if (e.request.mode !== 'navigate') return;
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(VER).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() =>
+        caches.match(e.request).then(hit => hit || caches.match(self.registration.scope))
+      )
+  );
+});
+  `;
+
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swURL = URL.createObjectURL(blob);
+
+  navigator.serviceWorker.register(swURL, { scope: './' })
+    .then(reg => {
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw?.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller)
+            nw.postMessage({ type: 'SKIP_WAITING' });
+        });
+      });
+    })
+    .catch(() => {}); // silencioso — no afecta la app
+})();
+
+/* ══════════════════════════════════
    CONFIG
-════════════════════════════════════ */
+══════════════════════════════════ */
 const SHEET_ID  = '19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
 const CACHE_TTL = 12 * 60 * 60 * 1000;
 
-/* ════════════════════════════════════
-   ESTADO — persiste en sessionStorage
-   (sobrevive F5 sin perder la selección)
-════════════════════════════════════ */
-let SEL = rdSS('sp_sel') || { dias:null, capital:null };
+/* ══════════════════════════════════
+   ESTADO
+══════════════════════════════════ */
+let SEL   = rdSS('sp_sel') || { dias:null, capital:null };
 let CACHE = { dias:[], capital:[], interes:{}, banner:{activo:false,texto:''} };
-let syncActivo = false;
+let syncing = false;
 
-/* ════════════════════════════════════
-   SESSION STORAGE HELPERS
-════════════════════════════════════ */
 function rdSS(k){ try{ return JSON.parse(sessionStorage.getItem(k)); }catch(e){ return null; } }
 function wrSS(k,v){ try{ sessionStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 
-/* ════════════════════════════════════
-   LOCALSTORAGE CACHE
-   Mismas claves que el test original:
-   simulador_dias / simulador_capital /
-   simulador_interes / simulador_banner
-════════════════════════════════════ */
-function saveToCache(key, data){
-  localStorage.setItem('simulador_'+key, JSON.stringify({ data, timestamp:Date.now() }));
-}
-function getFromCache(key){
+/* ══════════════════════════════════
+   LOCALSTORAGE — claves del test original
+══════════════════════════════════ */
+function saveToCache(k,d){ localStorage.setItem('simulador_'+k, JSON.stringify({data:d,timestamp:Date.now()})); }
+function getFromCache(k){
   try{
-    const raw = localStorage.getItem('simulador_'+key);
+    const raw=localStorage.getItem('simulador_'+k);
     if(!raw) return null;
-    const p = JSON.parse(raw);
-    return p?.data !== undefined ? p.data : p;
+    const p=JSON.parse(raw);
+    return p?.data!==undefined ? p.data : p;
   }catch(e){ return null; }
 }
-function getCacheTs(key){
-  try{ return JSON.parse(localStorage.getItem('simulador_'+key))?.timestamp||null; }catch(e){ return null; }
+function getCacheTs(k){
+  try{ return JSON.parse(localStorage.getItem('simulador_'+k))?.timestamp||null; }catch(e){ return null; }
 }
 function cacheOk(){
   const d=getFromCache('dias'), c=getFromCache('capital'), i=getFromCache('interes');
@@ -331,12 +273,12 @@ function cargarEnMemoria(){
   CACHE.dias    = getFromCache('dias')    || [];
   CACHE.capital = getFromCache('capital') || [];
   CACHE.interes = getFromCache('interes') || {};
-  CACHE.banner  = getFromCache('banner')  || { activo:false, texto:'' };
+  CACHE.banner  = getFromCache('banner')  || {activo:false,texto:''};
 }
 
-/* ════════════════════════════════════
+/* ══════════════════════════════════
    NORMALIZACIÓN — igual que el test
-════════════════════════════════════ */
+══════════════════════════════════ */
 function norm(v){
   if(typeof v==='number') return isFinite(v)?v:NaN;
   if(v==null||v==='') return NaN;
@@ -347,31 +289,28 @@ function norm(v){
   return isNaN(n)||!isFinite(n)?NaN:n;
 }
 
-/* ════════════════════════════════════
+/* ══════════════════════════════════
    FETCH SHEETS
-════════════════════════════════════ */
+══════════════════════════════════ */
 async function fetchSheet(nombre){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(nombre)}`;
   const r=await fetch(url,{cache:'no-store'});
-  if(!r.ok) throw new Error(`HTTP ${r.status} — "${nombre}"`);
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
   const txt=await r.text();
   const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
   return json.table?.rows||[];
 }
-async function leerColumnaA(nombre){
-  const rows=await fetchSheet(nombre);
-  const vals=[];
+async function leerColumnaA(n){
+  const rows=await fetchSheet(n); const vals=[];
   rows.forEach((row,i)=>{
     const v=row?.c?.[0]?.v;
     if(i===0&&isNaN(parseFloat(v))) return;
-    const n=norm(v);
-    if(!isNaN(n)) vals.push(n);
+    const n=norm(v); if(!isNaN(n)) vals.push(n);
   });
   return vals;
 }
 async function leerInteres(dias){
-  const rows=await fetchSheet('Interes');
-  const vals=[];
+  const rows=await fetchSheet('Interes'); const vals=[];
   rows.forEach((row,i)=>{
     const v=row?.c?.[0]?.v, f=row?.c?.[0]?.f||'';
     if(i===0&&isNaN(parseFloat(v))) return;
@@ -381,8 +320,7 @@ async function leerInteres(dias){
     if(n<0||n>100) return;
     vals.push(n);
   });
-  const obj={};
-  const len=Math.min(dias.length,vals.length);
+  const obj={}, len=Math.min(dias.length,vals.length);
   for(let i=0;i<len;i++) obj[dias[i]]=vals[i];
   return obj;
 }
@@ -394,74 +332,61 @@ async function leerBanner(){
   return{activo:false,texto:''};
 }
 
-/* ════════════════════════════════════
+/* ══════════════════════════════════
    SYNC SILENCIOSO
-════════════════════════════════════ */
-async function sincronizar(){
-  if(syncActivo||!navigator.onLine) return;
-  syncActivo=true;
-  setDot('busy'); setStrip(8);
+══════════════════════════════════ */
+async function sync(){
+  if(syncing||!navigator.onLine) return;
+  syncing=true; dot('busy'); strip(8);
   try{
     const dias=await leerColumnaA('Dias');
     if(!dias.length) throw new Error('Dias vacío');
-    saveToCache('dias',dias); setStrip(30);
+    saveToCache('dias',dias); strip(30);
 
     const capital=await leerColumnaA('Capital');
     if(!capital.length) throw new Error('Capital vacío');
-    saveToCache('capital',capital); setStrip(55);
+    saveToCache('capital',capital); strip(55);
 
     const interes=await leerInteres(dias);
     if(!Object.keys(interes).length) throw new Error('Interes vacío');
-    saveToCache('interes',interes); setStrip(82);
+    saveToCache('interes',interes); strip(82);
 
     const banner=await leerBanner();
-    saveToCache('banner',banner); setStrip(100);
+    saveToCache('banner',banner); strip(100);
 
     cargarEnMemoria();
-    // Refrescar chips manteniendo selección activa
     renderDias(true); renderCapital(true); renderBanner();
-    // Re-calcular si había selección completa
-    autoCalcular();
-
-    setDot('ok');
-    setTimeout(()=>setStrip(null),500);
+    autoCalc();
+    dot('ok'); setTimeout(()=>strip(null),500);
   }catch(err){
-    setDot(navigator.onLine?'ok':'off');
-    setStrip(null);
-    if(!cacheOk()) toast('Error al cargar datos: '+err.message, 4000);
+    dot(navigator.onLine?'ok':'off'); strip(null);
+    if(!cacheOk()) toast('Error al cargar: '+err.message,4000);
   }
-  syncActivo=false;
+  syncing=false;
 }
 
-/* ════════════════════════════════════
-   RENDER CHIPS
-════════════════════════════════════ */
-function renderDias(mantener=false){
+/* ══════════════════════════════════
+   RENDER
+══════════════════════════════════ */
+function renderDias(keep=false){
   const el=$('chipsDias');
-  if(!CACHE.dias.length){
-    el.innerHTML='<div class="empty"><span>📅</span>Cargando plazos…</div>'; return;
-  }
-  if(mantener && SEL.dias && !CACHE.dias.includes(SEL.dias)) SEL.dias=null;
+  if(!CACHE.dias.length){ el.innerHTML='<div class="empty"><span>📅</span>Cargando…</div>'; return; }
+  if(keep&&SEL.dias&&!CACHE.dias.includes(SEL.dias)) SEL.dias=null;
   el.innerHTML='';
   CACHE.dias.forEach(d=>{
     const c=mk('div','chip'+(SEL.dias===d?' on':''));
-    c.textContent=d+' días';
-    c.onclick=()=>selDias(d);
-    el.appendChild(c);
+    c.textContent=d+' días'; c.onclick=()=>selD(d); el.appendChild(c);
   });
 }
-function renderCapital(mantener=false){
+function renderCapital(keep=false){
   const el=$('chipsCapital');
-  if(!CACHE.capital.length){
-    el.innerHTML='<div class="empty"><span>💰</span>Cargando montos…</div>'; return;
-  }
-  if(mantener && SEL.capital && !CACHE.capital.includes(SEL.capital)) SEL.capital=null;
+  if(!CACHE.capital.length){ el.innerHTML='<div class="empty"><span>💰</span>Cargando…</div>'; return; }
+  if(keep&&SEL.capital&&!CACHE.capital.includes(SEL.capital)) SEL.capital=null;
   el.innerHTML='';
   CACHE.capital.forEach(c=>{
     const chip=mk('div','chip'+(SEL.capital===c?' on':''));
     chip.textContent='$'+c.toLocaleString('es-MX');
-    chip.onclick=()=>selCapital(c);
-    el.appendChild(chip);
+    chip.onclick=()=>selC(c); el.appendChild(chip);
   });
 }
 function renderBanner(){
@@ -470,124 +395,87 @@ function renderBanner(){
   else $('banner').classList.remove('show');
 }
 
-/* ════════════════════════════════════
-   SELECCIÓN → dispara cálculo al instante
-════════════════════════════════════ */
-function selDias(d){
+/* ══════════════════════════════════
+   SELECCIÓN → cálculo inmediato
+══════════════════════════════════ */
+function selD(d){
   SEL.dias=d; wrSS('sp_sel',SEL);
   $$('#chipsDias .chip').forEach(c=>c.classList.toggle('on',parseInt(c.textContent)===d));
-  autoCalcular();
+  autoCalc();
 }
-function selCapital(c){
+function selC(c){
   SEL.capital=c; wrSS('sp_sel',SEL);
   $$('#chipsCapital .chip').forEach(el=>el.classList.toggle('on',el.textContent==='$'+c.toLocaleString('es-MX')));
-  autoCalcular();
+  autoCalc();
 }
 
-/* ════════════════════════════════════
-   CÁLCULO AUTOMÁTICO EN TIEMPO REAL
-   — Se ejecuta en cada selección
-   — Sin botón, sin delay
-════════════════════════════════════ */
-function autoCalcular(){
-  const { dias, capital } = SEL;
+/* ══════════════════════════════════
+   CÁLCULO EN TIEMPO REAL
+   Fórmula idéntica al test original
+══════════════════════════════════ */
+function autoCalc(){
+  const {dias,capital}=SEL;
+  if(!dias&&!capital){ resetRes('Selecciona plazo y capital'); return; }
+  if(!dias)           { resetRes('Selecciona un plazo');       return; }
+  if(!capital)        { resetRes('Selecciona el capital');     return; }
 
-  // Estado parcial: solo uno seleccionado
-  if(!dias && !capital){
-    resetResultado('Selecciona plazo y capital'); return;
-  }
-  if(!dias){
-    resetResultado('Selecciona un plazo'); return;
-  }
-  if(!capital){
-    resetResultado('Selecciona el capital'); return;
-  }
+  const ip=CACHE.interes[dias];
+  if(ip===undefined||ip===null){ resetRes('Sin tasa para ese plazo'); return; }
 
-  const interesPorc = CACHE.interes[dias];
-  if(interesPorc===undefined||interesPorc===null){
-    resetResultado('Sin tasa para ese plazo'); return;
-  }
+  /* FÓRMULA — igual que calcularDesdeCache() del test */
+  const it = capital * (ip / 100);
+  const tp = capital + it;
+  const pd = tp / dias;
 
-  /* FÓRMULA — idéntica al test */
-  const interesTotal = capital * (interesPorc / 100);
-  const totalPagar   = capital + interesTotal;
-  const pagoDiario   = totalPagar / dias;
-
-  const data = { dias, capital, interesPorc, interesTotal, totalPagar, pagoDiario };
-
-  // Persistir en session para restaurar en recarga
-  wrSS('sp_last', data);
-
-  mostrarResultado(data);
+  wrSS('sp_last',{dias,capital,ip,it,tp,pd});
+  showRes(dias,capital,ip,it,tp,pd);
 }
 
-function fmt(n){
-  return '$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+function fmt(n){ return '$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function showRes(dias,capital,ip,it,tp,pd){
+  const hora=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  $('rp').classList.add('on'); $('rh').classList.add('on');
+  cls('rTotal','on'); $('rTotal').textContent=fmt(tp);
+  cls('rSub','on');   $('rSub').textContent=`${dias} días · tasa ${ip}%`;
+  sv('rCap', fmt(capital), false, false);
+  sv('rTasa', ip+'%',      true,  false);
+  sv('rInt',  fmt(it),     false, true);
+  sv('rDia',  fmt(pd),     true,  false);
+  $('rDot').classList.add('v');
+  $('rFoot').textContent='Calculado con caché · '+hora;
 }
 
-function mostrarResultado({ dias, capital, interesPorc, interesTotal, totalPagar, pagoDiario }){
-  const hora = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
-
-  // Activar estilos del panel
-  $('resultPanel').classList.add('active');
-  $('rHead').classList.add('active');
-
-  // Total destacado
-  const rTot=$('rTotal');
-  rTot.textContent=fmt(totalPagar);
-  rTot.classList.add('active');
-
-  // Subtítulo
-  const rSub=$('rSub');
-  rSub.textContent=`${dias} días · tasa ${interesPorc}%`;
-  rSub.classList.add('active');
-
-  // Métricas
-  setVal('rCapital', fmt(capital),         false, false);
-  setVal('rTasa',    interesPorc+'%',       true,  false);
-  setVal('rInteres', fmt(interesTotal),     false, true);
-  setVal('rDiario',  fmt(pagoDiario),       true,  false);
-
-  // Footer
-  $('rDot').classList.add('show');
-  $('rFooter').textContent = 'Calculado con caché · '+hora;
+function sv(id,val,ac,go){
+  const el=$(id); el.textContent=val; el.classList.add('v');
+  if(ac) el.classList.add('ac'); if(go) el.classList.add('go');
 }
+function cls(id,c){ $(id).classList.add(c); }
 
-function setVal(id, val, isAcc, isGold){
-  const el=$(id);
-  el.textContent=val;
-  el.classList.add('show');
-  if(isAcc)  el.classList.add('ac');
-  if(isGold) el.classList.add('go');
-}
-
-function resetResultado(msg){
-  $('resultPanel').classList.remove('active');
-  $('rHead').classList.remove('active');
-  $('rTotal').textContent='—'; $('rTotal').classList.remove('active');
-  $('rSub').textContent=msg||'Selecciona plazo y capital'; $('rSub').classList.remove('active');
-  ['rCapital','rTasa','rInteres','rDiario'].forEach(id=>{
-    const el=$(id); el.textContent='—';
-    el.classList.remove('show','ac','go');
+function resetRes(msg){
+  $('rp').classList.remove('on'); $('rh').classList.remove('on');
+  $('rTotal').textContent='—'; $('rTotal').classList.remove('on');
+  $('rSub').textContent=msg||'Selecciona plazo y capital'; $('rSub').classList.remove('on');
+  ['rCap','rTasa','rInt','rDia'].forEach(id=>{
+    const el=$(id); el.textContent='—'; el.classList.remove('v','ac','go');
   });
-  $('rDot').classList.remove('show');
-  $('rFooter').textContent='Esperando selección…';
+  $('rDot').classList.remove('v');
+  $('rFoot').textContent='Esperando selección…';
 }
 
-/* ════════════════════════════════════
+/* ══════════════════════════════════
    UI UTILS
-════════════════════════════════════ */
+══════════════════════════════════ */
 const $  = id  => document.getElementById(id);
-const $$ = sel => document.querySelectorAll(sel);
+const $$ = s   => document.querySelectorAll(s);
 const mk = (t,c)=>{ const e=document.createElement(t); if(c) e.className=c; return e; };
 
-function setDot(m){ $('sdot').className='sdot '+(m||''); }
-function setStrip(pct){
+function dot(m){ $('sdot').className='sdot '+(m||''); }
+function strip(pct){
   const f=$('strip');
   if(pct===null){ f.classList.remove('on'); setTimeout(()=>{ f.style.width='0%'; },400); return; }
   f.classList.add('on'); f.style.width=pct+'%';
 }
-
 let _tT;
 function toast(msg,ms=2800){
   clearTimeout(_tT);
@@ -595,59 +483,41 @@ function toast(msg,ms=2800){
   _tT=setTimeout(()=>el.classList.remove('show'),ms);
 }
 
-/* ════════════════════════════════════
-   INIT AUTOMÁTICO
-════════════════════════════════════ */
+/* ══════════════════════════════════
+   INIT — 100% automático
+══════════════════════════════════ */
 async function init(){
-  setDot(navigator.onLine?'ok':'off');
+  dot(navigator.onLine?'ok':'off');
 
-  const hayCache = cacheOk();
-
-  if(hayCache){
-    /* ── Ruta rápida: datos en caché, renderizar al instante ── */
+  if(cacheOk()){
     cargarEnMemoria();
-    renderDias();
-    renderCapital();
-    renderBanner();
-
-    /* Restaurar selección y resultado de la sesión anterior */
-    const lastResult = rdSS('sp_last');
-    if(SEL.dias && SEL.capital && lastResult){
-      autoCalcular(); // recalcular con los datos actuales del caché
-    } else if(SEL.dias || SEL.capital){
-      autoCalcular(); // estado parcial → guía al usuario
-    }
-
-    /* Sync silencioso si el caché está vencido */
+    renderDias(); renderCapital(); renderBanner();
+    // Restaurar selección anterior y recalcular
+    if(SEL.dias||SEL.capital) autoCalc();
+    // Sync silencioso si caché vencido
     const ts=getCacheTs('dias');
-    const stale=!ts||(Date.now()-ts)>CACHE_TTL;
-    if(stale && navigator.onLine) sincronizar();
-
+    if((!ts||(Date.now()-ts)>CACHE_TTL)&&navigator.onLine) sync();
   } else {
-    /* ── Primera vez o caché borrado ── */
     if(navigator.onLine){
-      await sincronizar();
-      if(cacheOk()){
-        cargarEnMemoria();
-        renderDias(); renderCapital(); renderBanner();
-      } else {
+      await sync();
+      if(cacheOk()){ cargarEnMemoria(); renderDias(); renderCapital(); renderBanner(); }
+      else{
         $('chipsDias').innerHTML='<div class="empty"><span>⚠️</span>Error al cargar datos.<br>Verifica conexión.</div>';
         $('chipsCapital').innerHTML='';
       }
     } else {
-      $('chipsDias').innerHTML='<div class="empty"><span>📵</span>Sin conexión.<br>Los datos cargarán al reconectar.</div>';
+      $('chipsDias').innerHTML='<div class="empty"><span>📵</span>Sin conexión.<br>Se cargará al reconectar.</div>';
       $('chipsCapital').innerHTML='';
     }
   }
 
-  /* Listeners de red — completamente automáticos */
   window.addEventListener('online', ()=>{
-    setDot('busy');
-    sincronizar().then(()=>{
-      if(cacheOk()){ cargarEnMemoria(); renderDias(true); renderCapital(true); renderBanner(); autoCalcular(); }
+    dot('busy');
+    sync().then(()=>{
+      if(cacheOk()){ cargarEnMemoria(); renderDias(true); renderCapital(true); renderBanner(); autoCalc(); }
     });
   });
-  window.addEventListener('offline', ()=>{ setDot('off'); });
+  window.addEventListener('offline', ()=>{ dot('off'); });
 }
 
 init();
