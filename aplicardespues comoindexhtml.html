@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SimPréstamo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b10; --surf:#0f1319; --card:#141a24; --card2:#19202e;
+  --b1:#1c2535; --b2:#243047;
+  --acc:#00e5b0; --acc2:#00b88d;
+  --blue:#3b82f6; --gold:#f59e0b;
+  --txt:#dce8f5; --mut:#4d617d; --soft:#7a92b0;
+  --r:14px; --rs:9px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 88% 4%,rgba(0,229,176,.07) 0%,transparent 65%),
+    radial-gradient(ellipse 50% 60% at 4% 96%,rgba(59,130,246,.05) 0%,transparent 65%);
+}
+.app{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 16px 60px}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 0 6px}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.28rem;letter-spacing:-.03em}
+.logo em{color:var(--acc);font-style:normal}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--mut);transition:background .4s}
+.sdot.ok  {background:var(--acc)}
+.sdot.off {background:var(--gold)}
+.sdot.busy{background:var(--blue);animation:pulse .9s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* SYNC STRIP */
+.sw{height:2px;border-radius:99px;background:var(--b1);overflow:hidden;margin-bottom:6px}
+.sf{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--blue));transition:width .35s,opacity .4s;opacity:0}
+.sf.on{opacity:1}
+
+/* BANNER */
+.banner{display:none;align-items:center;gap:9px;margin:4px 0 10px;padding:10px 14px;border-radius:var(--rs);background:rgba(0,229,176,.07);border:1px solid rgba(0,229,176,.18);font-size:.83rem;color:var(--acc)}
+.banner.show{display:flex}
+
+/* SECTION */
+.slabel{font-family:'Syne',sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:22px 0 10px}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:20px}
+
+/* CHIPS */
+.clabel{font-size:.74rem;font-weight:500;color:var(--soft);display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+.chips.g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{
+  padding:8px 16px;border-radius:99px;border:1.5px solid var(--b2);background:var(--surf);
+  color:var(--soft);font-size:.82rem;font-weight:500;cursor:pointer;user-select:none;
+  transition:border-color .13s,background .13s,color .13s,transform .1s;
+  -webkit-user-select:none;
+}
+.chips.g .chip{border-radius:var(--rs);text-align:center;padding:10px 4px}
+.chip:hover{border-color:var(--acc);color:var(--txt)}
+.chip:active{transform:scale(.96)}
+.chip.on{border-color:var(--acc);background:rgba(0,229,176,.12);color:var(--acc);font-weight:600}
+
+/* SKELETON */
+.sk{background:linear-gradient(90deg,var(--surf) 25%,var(--card2) 50%,var(--surf) 75%);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:99px;height:36px}
+.chips.g .sk{border-radius:var(--rs)}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.divider{height:1px;background:var(--b1);margin:0 0 20px}
+
+/* RESULTADO */
+.rp{margin-top:20px;border-radius:var(--r);overflow:hidden;border:1px solid var(--b2);background:var(--card2);transition:border-color .3s,box-shadow .3s}
+.rp.on{border-color:rgba(0,229,176,.28);box-shadow:0 0 36px rgba(0,229,176,.08),0 8px 28px rgba(0,0,0,.45)}
+.rh{padding:20px 20px 14px;text-align:center;background:linear-gradient(135deg,rgba(0,229,176,.07) 0%,rgba(59,130,246,.04) 100%);border-bottom:1px solid var(--b1);transition:background .3s}
+.rh.on{background:linear-gradient(135deg,rgba(0,229,176,.12) 0%,rgba(59,130,246,.08) 100%)}
+.rl{font-size:.66rem;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.rb{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--mut);transition:color .2s}
+.rb.on{color:var(--acc)}
+.rs{font-size:.76rem;color:var(--mut);margin-top:5px;min-height:1.2em;transition:color .2s}
+.rs.on{color:var(--soft)}
+.rg{display:grid;grid-template-columns:1fr 1fr}
+.ri{padding:14px 16px;border-right:1px solid var(--b1);border-bottom:1px solid var(--b1)}
+.ri:nth-child(2n){border-right:none}
+.ri:nth-last-child(-n+2){border-bottom:none}
+.rik{font-size:.65rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.riv{font-family:'Syne',sans-serif;font-size:1.08rem;font-weight:700;color:var(--b2);transition:color .2s}
+.riv.v{color:var(--txt)}
+.riv.v.ac{color:var(--acc)}
+.riv.v.go{color:var(--gold)}
+.rf{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--surf);font-size:.66rem;color:var(--mut);min-height:30px}
+.rfd{width:4px;height:4px;border-radius:50%;background:var(--acc);opacity:0;transition:opacity .3s}
+.rfd.v{opacity:1}
+
+/* EMPTY / TOAST */
+.empty{padding:20px 0;text-align:center;font-size:.81rem;color:var(--mut);line-height:1.7}
+.empty span{font-size:1.7rem;display:block;margin-bottom:7px;opacity:.35}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(52px);background:var(--card2);border:1px solid var(--b2);padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:200;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:360px){
+  .rb{font-size:2rem}
+  .chips.g{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <div class="logo">Sim<em>Préstamo</em></div>
+    <div class="sdot" id="sdot"></div>
+  </header>
+  <div class="sw"><div class="sf" id="strip"></div></div>
+  <div class="banner" id="banner"><span>📢</span><span id="bannerTxt"></span></div>
+  <p class="slabel">Simulador de préstamo</p>
+  <div class="card">
+    <div class="clabel">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Plazo
+    </div>
+    <div class="chips" id="chipsDias">
+      <div class="sk" style="width:76px"></div>
+      <div class="sk" style="width:76px"></div>
+      <div class="sk" style="width:76px"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="clabel">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+      Capital solicitado
+    </div>
+    <div class="chips g" id="chipsCapital">
+      <div class="sk"></div><div class="sk"></div><div class="sk"></div>
+      <div class="sk"></div><div class="sk"></div><div class="sk"></div>
+    </div>
+    <div class="rp" id="rp">
+      <div class="rh" id="rh">
+        <div class="rl">Total a pagar</div>
+        <div class="rb" id="rTotal">—</div>
+        <div class="rs" id="rSub">Selecciona plazo y capital</div>
+      </div>
+      <div class="rg">
+        <div class="ri"><div class="rik">Capital</div><div class="riv" id="rCap">—</div></div>
+        <div class="ri"><div class="rik">Tasa</div><div class="riv" id="rTasa">—</div></div>
+        <div class="ri"><div class="rik">Interés total</div><div class="riv" id="rInt">—</div></div>
+        <div class="ri"><div class="rik">Pago diario</div><div class="riv" id="rDia">—</div></div>
+      </div>
+      <div class="rf">
+        <div class="rfd" id="rDot"></div>
+        <span id="rFoot">Esperando selección…</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- BOTÓN FLOTANTE → solicitud.html -->
+<style>
+.fab-sol{
+  position:fixed;bottom:20px;right:16px;z-index:100;
+  width:52px;height:52px;border-radius:50%;
+  background:#25D366;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 24px rgba(37,211,102,.4),0 2px 8px rgba(0,0,0,.4);
+  transition:transform .15s,box-shadow .15s;
+  animation:fabIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.fab-sol:hover{transform:scale(1.1);box-shadow:0 10px 32px rgba(37,211,102,.5)}
+.fab-sol:active{transform:scale(.95)}
+@keyframes fabIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.fab-sol-tip{
+  position:fixed;bottom:22px;right:78px;z-index:100;
+  background:var(--card2);border:1px solid var(--b2);
+  color:var(--txt);font-size:.75rem;font-family:'DM Sans',sans-serif;
+  padding:7px 12px;border-radius:99px;
+  white-space:nowrap;pointer-events:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+  opacity:0;transform:translateX(8px);
+  transition:opacity .2s,transform .2s;
+}
+.fab-sol:hover + .fab-sol-tip,
+.fab-sol-tip:hover{opacity:1;transform:translateX(0)}
+</style>
+
+<button class="fab-sol" onclick="abrirSolicitud()" title="Enviar solicitud">
+  <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path fill="white" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+  </svg>
+</button>
+<div class="fab-sol-tip">Solicitar préstamo</div>
+
+<script>
+function abrirSolicitud(){
+  // Verificar que haya una simulación activa
+  const sel = (() => { try{ return JSON.parse(sessionStorage.getItem('sp_sel')||'{}'); }catch(e){ return {}; } })();
+  if (!sel.dias || !sel.capital) {
+    // Mostrar toast del index
+    const el = document.getElementById('toast');
+    el.textContent = 'Selecciona plazo y capital primero';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2800);
+    return;
+  }
+  window.location.href = 'solicitud.html';
+}
+</script>
+
+<script>
+/* ════════════════════════════════════════
+   SERVICE WORKER — apunta a sw.js real
+   (Blob URL no funciona en GitHub Pages)
+════════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
+}
+
+/* ════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════ */
+const SHEET_ID  = '19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
+const CACHE_TTL = 12 * 60 * 60 * 1000;
+
+/* ════════════════════════════════════════
+   ESTADO GLOBAL
+════════════════════════════════════════ */
+let selDias    = null;
+let selCapital = null;
+let C = { dias:[], capital:[], interes:{}, banner:{activo:false,texto:''} };
+let syncing = false;
+
+/* ════════════════════════════════════════
+   LOCALSTORAGE
+════════════════════════════════════════ */
+function save(k,d){ localStorage.setItem('simulador_'+k,JSON.stringify({data:d,ts:Date.now()})); }
+function load(k){
+  try{
+    const r=localStorage.getItem('simulador_'+k);
+    if(!r) return null;
+    const p=JSON.parse(r);
+    return ('data' in p) ? p.data : p;
+  }catch(e){ return null; }
+}
+function loadTs(k){
+  try{ return JSON.parse(localStorage.getItem('simulador_'+k))?.ts||null; }catch(e){ return null; }
+}
+function cacheOk(){
+  const d=load('dias'),c=load('capital'),i=load('interes');
+  return Array.isArray(d)&&d.length>0&&Array.isArray(c)&&c.length>0&&i&&typeof i==='object'&&!Array.isArray(i)&&Object.keys(i).length>0;
+}
+function intoMem(){
+  C.dias    = load('dias')    || [];
+  C.capital = load('capital') || [];
+  C.interes = load('interes') || {};
+  C.banner  = load('banner')  || {activo:false,texto:''};
+}
+
+/* ════════════════════════════════════════
+   NORMALIZACIÓN
+════════════════════════════════════════ */
+function norm(v){
+  if(typeof v==='number') return isFinite(v)?v:NaN;
+  if(v==null||v==='') return NaN;
+  let s=String(v).trim().replace(/%/g,'').replace(/,/g,'.');
+  const p=s.split('.');
+  if(p.length>2) s=p.slice(0,-1).join('')+'.'+p[p.length-1];
+  const n=parseFloat(s);
+  return isNaN(n)||!isFinite(n)?NaN:n;
+}
+
+/* ════════════════════════════════════════
+   FETCH SHEETS
+════════════════════════════════════════ */
+async function fetchSheet(nombre){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(nombre)}`;
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  const txt=await r.text();
+  const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
+  return json.table?.rows||[];
+}
+async function leerA(n){
+  const rows=await fetchSheet(n); const vals=[];
+  rows.forEach((row,i)=>{
+    const v=row?.c?.[0]?.v;
+    if(i===0&&isNaN(parseFloat(v))) return;
+    const x=norm(v); if(!isNaN(x)) vals.push(x);
+  });
+  return vals;
+}
+async function leerInteres(dias){
+  const rows=await fetchSheet('Interes'); const vals=[];
+  rows.forEach((row,i)=>{
+    const v=row?.c?.[0]?.v, f=row?.c?.[0]?.f||'';
+    if(i===0&&isNaN(parseFloat(v))) return;
+    let n=norm(v);
+    if(isNaN(n)||n>1000) return;
+    if(f.includes('%')||(n>0&&n<1)) n*=100;
+    if(n<0||n>100) return;
+    vals.push(n);
+  });
+  const obj={},len=Math.min(dias.length,vals.length);
+  for(let i=0;i<len;i++) obj[dias[i]]=vals[i];
+  return obj;
+}
+async function leerBanner(){
+  try{
+    const rows=await fetchSheet('Banner');
+    if(rows.length>1){const t=rows[1]?.c?.[0]?.v||'';return{activo:t.trim()!=='',texto:t};}
+  }catch(_){}
+  return{activo:false,texto:''};
+}
+
+/* ════════════════════════════════════════
+   SYNC SILENCIOSO
+════════════════════════════════════════ */
+async function sync(){
+  if(syncing||!navigator.onLine) return;
+  syncing=true; dot('busy'); pct(8);
+  try{
+    const dias=await leerA('Dias');
+    if(!dias.length) throw new Error('Dias vacío');
+    save('dias',dias); pct(30);
+
+    const capital=await leerA('Capital');
+    if(!capital.length) throw new Error('Capital vacío');
+    save('capital',capital); pct(55);
+
+    const interes=await leerInteres(dias);
+    if(!Object.keys(interes).length) throw new Error('Interes vacío');
+    save('interes',interes); pct(82);
+
+    const banner=await leerBanner();
+    save('banner',banner); pct(100);
+
+    intoMem();
+    paintDias(); paintCapital(); paintBanner();
+    calc();
+    dot('ok'); setTimeout(()=>pct(null),500);
+  }catch(err){
+    dot(navigator.onLine?'ok':'off'); pct(null);
+    if(!cacheOk()) toast('Error: '+err.message,4000);
+  }
+  syncing=false;
+}
+
+/* ════════════════════════════════════════
+   RENDER CHIPS
+════════════════════════════════════════ */
+function paintDias(){
+  const el=gi('chipsDias'); el.innerHTML='';
+  if(!C.dias.length){ el.innerHTML='<div class="empty"><span>📅</span>Cargando…</div>'; return; }
+  C.dias.forEach(d=>{
+    const c=mk('div','chip'+(selDias===d?' on':''));
+    c.textContent=d+' días';
+    c.addEventListener('click',()=>pickD(d));
+    el.appendChild(c);
+  });
+}
+function paintCapital(){
+  const el=gi('chipsCapital'); el.innerHTML='';
+  if(!C.capital.length){ el.innerHTML='<div class="empty"><span>💰</span>Cargando…</div>'; return; }
+  C.capital.forEach(c=>{
+    const chip=mk('div','chip'+(selCapital===c?' on':''));
+    chip.textContent='$'+c.toLocaleString('es-MX');
+    chip.addEventListener('click',()=>pickC(c));
+    el.appendChild(chip);
+  });
+}
+function paintBanner(){
+  const b=C.banner;
+  if(b?.activo&&b.texto?.trim()){gi('bannerTxt').textContent=b.texto;gi('banner').classList.add('show');}
+  else gi('banner').classList.remove('show');
+}
+
+/* ════════════════════════════════════════
+   PICK
+════════════════════════════════════════ */
+function pickD(d){
+  selDias=d;
+  try{ const s=JSON.parse(sessionStorage.getItem('sp_sel')||'{}'); s.dias=d; sessionStorage.setItem('sp_sel',JSON.stringify(s)); }catch(e){}
+  gi('chipsDias').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',parseInt(c.textContent)===d));
+  calc();
+}
+function pickC(c){
+  selCapital=c;
+  try{ const s=JSON.parse(sessionStorage.getItem('sp_sel')||'{}'); s.capital=c; sessionStorage.setItem('sp_sel',JSON.stringify(s)); }catch(e){}
+  gi('chipsCapital').querySelectorAll('.chip').forEach(el=>el.classList.toggle('on',el.textContent==='$'+c.toLocaleString('es-MX')));
+  calc();
+}
+
+/* ════════════════════════════════════════
+   CÁLCULO
+════════════════════════════════════════ */
+function calc(){
+  if(!selDias&&!selCapital){ reset('Selecciona plazo y capital'); return; }
+  if(!selDias)              { reset('Selecciona un plazo');       return; }
+  if(!selCapital)           { reset('Selecciona el capital');     return; }
+  if(!C.interes||Object.keys(C.interes).length===0){ intoMem(); }
+  const ip=C.interes[selDias];
+  if(ip===undefined||ip===null){ reset('Sin tasa para ese plazo'); return; }
+  const it=selCapital*(ip/100);
+  const tp=selCapital+it;
+  const pd=tp/selDias;
+  showRes(selDias,selCapital,ip,it,tp,pd);
+}
+
+/* ════════════════════════════════════════
+   MOSTRAR / LIMPIAR RESULTADO
+════════════════════════════════════════ */
+function fmt(n){ return '$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function showRes(dias,capital,ip,it,tp,pd){
+  const hora=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  gi('rp').classList.add('on'); gi('rh').classList.add('on');
+  gi('rTotal').textContent=fmt(tp); gi('rTotal').classList.add('on');
+  gi('rSub').textContent=`${dias} días · tasa ${ip}%`; gi('rSub').classList.add('on');
+  setV('rCap', fmt(capital),'',  '');
+  setV('rTasa',ip+'%',     'ac','');
+  setV('rInt', fmt(it),    '',  'go');
+  setV('rDia', fmt(pd),    'ac','');
+  gi('rDot').classList.add('v');
+  gi('rFoot').textContent='Calculado con caché · '+hora;
+}
+function setV(id,val,ac,go){
+  const el=gi(id); el.textContent=val;
+  el.className='riv v'+(ac?' '+ac:'')+(go?' '+go:'');
+}
+function reset(msg){
+  gi('rp').classList.remove('on'); gi('rh').classList.remove('on');
+  gi('rTotal').textContent='—'; gi('rTotal').classList.remove('on');
+  gi('rSub').textContent=msg; gi('rSub').classList.remove('on');
+  ['rCap','rTasa','rInt','rDia'].forEach(id=>{ const el=gi(id); el.textContent='—'; el.className='riv'; });
+  gi('rDot').classList.remove('v');
+  gi('rFoot').textContent='Esperando selección…';
+}
+
+/* ════════════════════════════════════════
+   UI UTILS
+════════════════════════════════════════ */
+const gi=(id)=>document.getElementById(id);
+const mk=(t,c)=>{ const e=document.createElement(t); if(c) e.className=c; return e; };
+function dot(m){ gi('sdot').className='sdot '+(m||''); }
+function pct(v){
+  const f=gi('strip');
+  if(v===null){ f.classList.remove('on'); setTimeout(()=>{f.style.width='0%';},400); return; }
+  f.classList.add('on'); f.style.width=v+'%';
+}
+let _tT;
+function toast(msg,ms=2800){
+  clearTimeout(_tT);
+  const el=gi('toast'); el.textContent=msg; el.classList.add('show');
+  _tT=setTimeout(()=>el.classList.remove('show'),ms);
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+async function init(){
+  dot(navigator.onLine?'ok':'off');
+
+  if(cacheOk()){
+    intoMem();
+    paintDias(); paintCapital(); paintBanner();
+    // Restaurar selección previa (F5)
+    try{
+      const prev=JSON.parse(sessionStorage.getItem('sp_sel')||'{}');
+      if(prev.dias    && C.dias.includes(prev.dias))       selDias=prev.dias;
+      if(prev.capital && C.capital.includes(prev.capital)) selCapital=prev.capital;
+      if(selDias)    gi('chipsDias').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',parseInt(c.textContent)===selDias));
+      if(selCapital) gi('chipsCapital').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.textContent==='$'+selCapital.toLocaleString('es-MX')));
+    }catch(e){}
+    calc();
+    // Sync silencioso si caché vencido
+    const ts=loadTs('dias');
+    if((!ts||(Date.now()-ts)>CACHE_TTL)&&navigator.onLine) sync();
+  } else {
+    if(navigator.onLine){
+      await sync();
+    } else {
+      gi('chipsDias').innerHTML='<div class="empty"><span>📵</span>Sin conexión.<br>Se cargará al reconectar.</div>';
+      gi('chipsCapital').innerHTML='';
+    }
+  }
+
+  window.addEventListener('online',()=>{
+    dot('busy');
+    sync().then(()=>{ if(cacheOk()){ intoMem(); paintDias(); paintCapital(); paintBanner(); calc(); } });
+  });
+  window.addEventListener('offline',()=>{ dot('off'); });
+}
+
+init();
+</script>
+</body>
+</html>
