@@ -451,45 +451,6 @@ init();
   window.location.href='solicitud.html';
 }
 </script>
-    <!-- BOTÓN FLOTANTE → compartir.html -->
-<style>
-.fab-share{
-  position:fixed;bottom:82px;right:16px;z-index:100;
-  width:52px;height:52px;border-radius:50%;
-  background:#3b82f6;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 6px 24px rgba(59,130,246,.4),0 2px 8px rgba(0,0,0,.4);
-  transition:transform .15s,box-shadow .15s;
-  animation:fabIn .6s cubic-bezier(.34,1.56,.64,1) both;
-}
-.fab-share:hover{transform:scale(1.1);box-shadow:0 10px 32px rgba(59,130,246,.5)}
-.fab-share:active{transform:scale(.95)}
-.fab-share-tip{
-  position:fixed;bottom:84px;right:78px;z-index:100;
-  background:#19202e;border:1px solid #243047;
-  color:#dce8f5;font-size:.75rem;font-family:'DM Sans',sans-serif;
-  padding:7px 12px;border-radius:99px;
-  white-space:nowrap;pointer-events:none;
-  box-shadow:0 4px 16px rgba(0,0,0,.4);
-  opacity:0;transform:translateX(8px);
-  transition:opacity .2s,transform .2s;
-}
-.fab-share:hover + .fab-share-tip{opacity:1;transform:translateX(0)}
-</style>
 
-<button class="fab-share" onclick="window.location.href='compartir.html'" title="Compartir">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
-    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-  </svg>
-</button>
-<div class="fab-share-tip">Compartir simulador</div>
-  function abrirSolicitud(){
-  const sel=(()=>{try{return JSON.parse(sessionStorage.getItem('sp_sel')||'{}');}catch(e){return{};}})();
-  if(!sel.dias||!sel.capital){
-    toast('Selecciona plazo y capital primero');
-    return;
-  }
 </body>
 </html>
