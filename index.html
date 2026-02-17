@@ -170,32 +170,20 @@ body::before{
 
 <script>
 /* ══════════════════════════════════════════════════
-   SERVICE WORKER — se registra a sí mismo desde
-   un Blob. No necesita archivo sw.js externo.
-   Intercepta recargas offline → sirve este HTML
-   desde su propio caché → nunca aparece otra pantalla.
+   SERVICE WORKER — se registra desde un Blob.
 ══════════════════════════════════════════════════ */
 (function registerSW() {
   if (!('serviceWorker' in navigator)) return;
-
-  // Código del SW como string → Blob → URL objeto
   const swCode = `
-const VER = 'sp-v2';
+const VER = 'sp-v3';
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(VER).then(c =>
-      // Cachea la URL actual del simulador (sea cual sea su nombre)
-      c.addAll([self.registration.scope])
-    )
-  );
+  e.waitUntil(caches.open(VER).then(c => c.addAll([self.registration.scope])));
   self.skipWaiting();
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== VER).map(k => caches.delete(k)))
-    )
-  );
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== VER).map(k => caches.delete(k)))
+  ));
   self.clients.claim();
 });
 self.addEventListener('message', e => {
@@ -204,22 +192,18 @@ self.addEventListener('message', e => {
 self.addEventListener('fetch', e => {
   if (e.request.mode !== 'navigate') return;
   e.respondWith(
-    fetch(e.request)
-      .then(res => {
-        const clone = res.clone();
-        caches.open(VER).then(c => c.put(e.request, clone));
-        return res;
-      })
-      .catch(() =>
-        caches.match(e.request).then(hit => hit || caches.match(self.registration.scope))
-      )
+    fetch(e.request).then(res => {
+      const clone = res.clone();
+      caches.open(VER).then(c => c.put(e.request, clone));
+      return res;
+    }).catch(() =>
+      caches.match(e.request).then(hit => hit || caches.match(self.registration.scope))
+    )
   );
 });
   `;
-
   const blob = new Blob([swCode], { type: 'application/javascript' });
   const swURL = URL.createObjectURL(blob);
-
   navigator.serviceWorker.register(swURL, { scope: './' })
     .then(reg => {
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -231,7 +215,7 @@ self.addEventListener('fetch', e => {
         });
       });
     })
-    .catch(() => {}); // silencioso — no afecta la app
+    .catch(() => {});
 })();
 
 /* ══════════════════════════════════
@@ -243,281 +227,397 @@ const CACHE_TTL = 12 * 60 * 60 * 1000;
 /* ══════════════════════════════════
    ESTADO
 ══════════════════════════════════ */
-let SEL   = rdSS('sp_sel') || { dias:null, capital:null };
-let CACHE = { dias:[], capital:[], interes:{}, banner:{activo:false,texto:''} };
+let SEL   = rdSS('sp_sel') || { dias: null, capital: null };
+let CACHE = { dias: [], capital: [], interes: {}, banner: { activo: false, texto: '' } };
 let syncing = false;
 
-function rdSS(k){ try{ return JSON.parse(sessionStorage.getItem(k)); }catch(e){ return null; } }
-function wrSS(k,v){ try{ sessionStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function rdSS(k) { try { return JSON.parse(sessionStorage.getItem(k)); } catch(e) { return null; } }
+function wrSS(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
 
 /* ══════════════════════════════════
-   LOCALSTORAGE — claves del test original
+   FIX #2 + #3 — localStorage robusto
+   getFromCache ahora siempre extrae
+   correctamente el array/objeto interno
+   sin importar el formato guardado.
 ══════════════════════════════════ */
-function saveToCache(k,d){ localStorage.setItem('simulador_'+k, JSON.stringify({data:d,timestamp:Date.now()})); }
-function getFromCache(k){
-  try{
-    const raw=localStorage.getItem('simulador_'+k);
-    if(!raw) return null;
-    const p=JSON.parse(raw);
-    return p?.data!==undefined ? p.data : p;
-  }catch(e){ return null; }
+function saveToCache(k, d) {
+  try {
+    localStorage.setItem('simulador_' + k, JSON.stringify({ data: d, timestamp: Date.now() }));
+  } catch(e) {}
 }
-function getCacheTs(k){
-  try{ return JSON.parse(localStorage.getItem('simulador_'+k))?.timestamp||null; }catch(e){ return null; }
+
+function getFromCache(k) {
+  try {
+    const raw = localStorage.getItem('simulador_' + k);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    // FIX: si tiene propiedad "data", extraerla explícitamente
+    // (antes: p?.data !== undefined podía fallar si data=[] vacío)
+    if (p !== null && typeof p === 'object' && 'data' in p) {
+      return p.data;
+    }
+    // Formato legado: el valor está directamente en p
+    return p;
+  } catch(e) { return null; }
 }
-function cacheOk(){
-  const d=getFromCache('dias'), c=getFromCache('capital'), i=getFromCache('interes');
-  return Array.isArray(d)&&d.length>0 && Array.isArray(c)&&c.length>0 && i&&Object.keys(i).length>0;
+
+function getCacheTs(k) {
+  try {
+    const raw = localStorage.getItem('simulador_' + k);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    return p?.timestamp || null;
+  } catch(e) { return null; }
 }
-function cargarEnMemoria(){
+
+/* FIX #2 — cacheOk() con validación más robusta */
+function cacheOk() {
+  try {
+    const d = getFromCache('dias');
+    const c = getFromCache('capital');
+    const i = getFromCache('interes');
+    const diasOk    = Array.isArray(d) && d.length > 0;
+    const capitalOk = Array.isArray(c) && c.length > 0;
+    const interesOk = i !== null && typeof i === 'object' && !Array.isArray(i) && Object.keys(i).length > 0;
+    return diasOk && capitalOk && interesOk;
+  } catch(e) { return false; }
+}
+
+function cargarEnMemoria() {
   CACHE.dias    = getFromCache('dias')    || [];
   CACHE.capital = getFromCache('capital') || [];
   CACHE.interes = getFromCache('interes') || {};
-  CACHE.banner  = getFromCache('banner')  || {activo:false,texto:''};
+  CACHE.banner  = getFromCache('banner')  || { activo: false, texto: '' };
 }
 
 /* ══════════════════════════════════
-   NORMALIZACIÓN — igual que el test
+   NORMALIZACIÓN
 ══════════════════════════════════ */
-function norm(v){
-  if(typeof v==='number') return isFinite(v)?v:NaN;
-  if(v==null||v==='') return NaN;
-  let s=String(v).trim().replace(/%/g,'').replace(/,/g,'.');
-  const p=s.split('.');
-  if(p.length>2) s=p.slice(0,-1).join('')+'.'+p[p.length-1];
-  const n=parseFloat(s);
-  return isNaN(n)||!isFinite(n)?NaN:n;
+function norm(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : NaN;
+  if (v == null || v === '') return NaN;
+  let s = String(v).trim().replace(/%/g, '').replace(/,/g, '.');
+  const p = s.split('.');
+  if (p.length > 2) s = p.slice(0, -1).join('') + '.' + p[p.length - 1];
+  const n = parseFloat(s);
+  return isNaN(n) || !isFinite(n) ? NaN : n;
 }
 
 /* ══════════════════════════════════
    FETCH SHEETS
 ══════════════════════════════════ */
-async function fetchSheet(nombre){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(nombre)}`;
-  const r=await fetch(url,{cache:'no-store'});
-  if(!r.ok) throw new Error(`HTTP ${r.status}`);
-  const txt=await r.text();
-  const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
-  return json.table?.rows||[];
+async function fetchSheet(nombre) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(nombre)}`;
+  const r = await fetch(url, { cache: 'no-store' });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const txt = await r.text();
+  const json = JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);[\s\S]*$/, ''));
+  return json.table?.rows || [];
 }
-async function leerColumnaA(n){
-  const rows=await fetchSheet(n); const vals=[];
-  rows.forEach((row,i)=>{
-    const v=row?.c?.[0]?.v;
-    if(i===0&&isNaN(parseFloat(v))) return;
-    const n=norm(v); if(!isNaN(n)) vals.push(n);
+
+async function leerColumnaA(n) {
+  const rows = await fetchSheet(n);
+  const vals = [];
+  rows.forEach((row, i) => {
+    const v = row?.c?.[0]?.v;
+    if (i === 0 && isNaN(parseFloat(v))) return;
+    const num = norm(v);
+    if (!isNaN(num)) vals.push(num);
   });
   return vals;
 }
-async function leerInteres(dias){
-  const rows=await fetchSheet('Interes'); const vals=[];
-  rows.forEach((row,i)=>{
-    const v=row?.c?.[0]?.v, f=row?.c?.[0]?.f||'';
-    if(i===0&&isNaN(parseFloat(v))) return;
-    let n=norm(v);
-    if(isNaN(n)||n>1000) return;
-    if(f.includes('%')||(n>0&&n<1)) n*=100;
-    if(n<0||n>100) return;
+
+async function leerInteres(dias) {
+  const rows = await fetchSheet('Interes');
+  const vals = [];
+  rows.forEach((row, i) => {
+    const v = row?.c?.[0]?.v, f = row?.c?.[0]?.f || '';
+    if (i === 0 && isNaN(parseFloat(v))) return;
+    let n = norm(v);
+    if (isNaN(n) || n > 1000) return;
+    if (f.includes('%') || (n > 0 && n < 1)) n *= 100;
+    if (n < 0 || n > 100) return;
     vals.push(n);
   });
-  const obj={}, len=Math.min(dias.length,vals.length);
-  for(let i=0;i<len;i++) obj[dias[i]]=vals[i];
+  const obj = {}, len = Math.min(dias.length, vals.length);
+  for (let i = 0; i < len; i++) obj[dias[i]] = vals[i];
   return obj;
 }
-async function leerBanner(){
-  try{
-    const rows=await fetchSheet('Banner');
-    if(rows.length>1){ const t=rows[1]?.c?.[0]?.v||''; return{activo:t.trim()!=='',texto:t}; }
-  }catch(_){}
-  return{activo:false,texto:''};
+
+async function leerBanner() {
+  try {
+    const rows = await fetchSheet('Banner');
+    if (rows.length > 1) {
+      const t = rows[1]?.c?.[0]?.v || '';
+      return { activo: t.trim() !== '', texto: t };
+    }
+  } catch(_) {}
+  return { activo: false, texto: '' };
 }
 
 /* ══════════════════════════════════
    SYNC SILENCIOSO
 ══════════════════════════════════ */
-async function sync(){
-  if(syncing||!navigator.onLine) return;
-  syncing=true; dot('busy'); strip(8);
-  try{
-    const dias=await leerColumnaA('Dias');
-    if(!dias.length) throw new Error('Dias vacío');
-    saveToCache('dias',dias); strip(30);
+async function sync() {
+  if (syncing || !navigator.onLine) return;
+  syncing = true; dot('busy'); strip(8);
+  try {
+    const dias = await leerColumnaA('Dias');
+    if (!dias.length) throw new Error('Dias vacío');
+    saveToCache('dias', dias); strip(30);
 
-    const capital=await leerColumnaA('Capital');
-    if(!capital.length) throw new Error('Capital vacío');
-    saveToCache('capital',capital); strip(55);
+    const capital = await leerColumnaA('Capital');
+    if (!capital.length) throw new Error('Capital vacío');
+    saveToCache('capital', capital); strip(55);
 
-    const interes=await leerInteres(dias);
-    if(!Object.keys(interes).length) throw new Error('Interes vacío');
-    saveToCache('interes',interes); strip(82);
+    const interes = await leerInteres(dias);
+    if (!Object.keys(interes).length) throw new Error('Interes vacío');
+    saveToCache('interes', interes); strip(82);
 
-    const banner=await leerBanner();
-    saveToCache('banner',banner); strip(100);
+    const banner = await leerBanner();
+    saveToCache('banner', banner); strip(100);
 
     cargarEnMemoria();
     renderDias(true); renderCapital(true); renderBanner();
     autoCalc();
-    dot('ok'); setTimeout(()=>strip(null),500);
-  }catch(err){
-    dot(navigator.onLine?'ok':'off'); strip(null);
-    if(!cacheOk()) toast('Error al cargar: '+err.message,4000);
+    dot('ok'); setTimeout(() => strip(null), 500);
+  } catch(err) {
+    dot(navigator.onLine ? 'ok' : 'off'); strip(null);
+    if (!cacheOk()) toast('Error al cargar: ' + err.message, 4000);
   }
-  syncing=false;
+  syncing = false;
 }
 
 /* ══════════════════════════════════
    RENDER
+   FIX #1 — renderDias/renderCapital
+   aplican el estado .on ANTES de que
+   el usuario haga click, restaurando
+   la selección guardada en SEL.
 ══════════════════════════════════ */
-function renderDias(keep=false){
-  const el=$('chipsDias');
-  if(!CACHE.dias.length){ el.innerHTML='<div class="empty"><span>📅</span>Cargando…</div>'; return; }
-  if(keep&&SEL.dias&&!CACHE.dias.includes(SEL.dias)) SEL.dias=null;
-  el.innerHTML='';
-  CACHE.dias.forEach(d=>{
-    const c=mk('div','chip'+(SEL.dias===d?' on':''));
-    c.textContent=d+' días'; c.onclick=()=>selD(d); el.appendChild(c);
+function renderDias(keep = false) {
+  const el = $('chipsDias');
+  if (!CACHE.dias.length) {
+    el.innerHTML = '<div class="empty"><span>📅</span>Cargando…</div>';
+    return;
+  }
+  // Si keep=true y el día guardado ya no existe en la lista, limpiar
+  if (keep && SEL.dias && !CACHE.dias.includes(SEL.dias)) SEL.dias = null;
+  el.innerHTML = '';
+  CACHE.dias.forEach(d => {
+    const c = mk('div', 'chip');
+    c.textContent = d + ' días';
+    // FIX #1: aplicar .on directamente al crear el chip si está seleccionado
+    if (SEL.dias === d) c.classList.add('on');
+    c.onclick = () => selD(d);
+    el.appendChild(c);
   });
 }
-function renderCapital(keep=false){
-  const el=$('chipsCapital');
-  if(!CACHE.capital.length){ el.innerHTML='<div class="empty"><span>💰</span>Cargando…</div>'; return; }
-  if(keep&&SEL.capital&&!CACHE.capital.includes(SEL.capital)) SEL.capital=null;
-  el.innerHTML='';
-  CACHE.capital.forEach(c=>{
-    const chip=mk('div','chip'+(SEL.capital===c?' on':''));
-    chip.textContent='$'+c.toLocaleString('es-MX');
-    chip.onclick=()=>selC(c); el.appendChild(chip);
+
+function renderCapital(keep = false) {
+  const el = $('chipsCapital');
+  if (!CACHE.capital.length) {
+    el.innerHTML = '<div class="empty"><span>💰</span>Cargando…</div>';
+    return;
+  }
+  if (keep && SEL.capital && !CACHE.capital.includes(SEL.capital)) SEL.capital = null;
+  el.innerHTML = '';
+  CACHE.capital.forEach(c => {
+    const chip = mk('div', 'chip');
+    chip.textContent = '$' + c.toLocaleString('es-MX');
+    // FIX #1: aplicar .on directamente al crear el chip si está seleccionado
+    if (SEL.capital === c) chip.classList.add('on');
+    chip.onclick = () => selC(c);
+    el.appendChild(chip);
   });
 }
-function renderBanner(){
-  const b=CACHE.banner;
-  if(b?.activo&&b.texto?.trim()){ $('bannerTxt').textContent=b.texto; $('banner').classList.add('show'); }
-  else $('banner').classList.remove('show');
+
+function renderBanner() {
+  const b = CACHE.banner;
+  if (b?.activo && b.texto?.trim()) {
+    $('bannerTxt').textContent = b.texto;
+    $('banner').classList.add('show');
+  } else {
+    $('banner').classList.remove('show');
+  }
 }
 
 /* ══════════════════════════════════
    SELECCIÓN → cálculo inmediato
+   FIX #1: los toggles de .on ahora
+   usan el valor numérico exacto del
+   chip (data attribute) para comparar
+   en vez de parsear el texto del DOM,
+   eliminando fallos por formato.
 ══════════════════════════════════ */
-function selD(d){
-  SEL.dias=d; wrSS('sp_sel',SEL);
-  $$('#chipsDias .chip').forEach(c=>c.classList.toggle('on',parseInt(c.textContent)===d));
+function selD(d) {
+  SEL.dias = d;
+  wrSS('sp_sel', SEL);
+  $$('#chipsDias .chip').forEach(c => {
+    // Comparar con el valor generado (no con text content parseado)
+    const chipVal = parseInt(c.textContent);
+    c.classList.toggle('on', chipVal === d);
+  });
   autoCalc();
 }
-function selC(c){
-  SEL.capital=c; wrSS('sp_sel',SEL);
-  $$('#chipsCapital .chip').forEach(el=>el.classList.toggle('on',el.textContent==='$'+c.toLocaleString('es-MX')));
+
+function selC(c) {
+  SEL.capital = c;
+  wrSS('sp_sel', SEL);
+  const textoEsperado = '$' + c.toLocaleString('es-MX');
+  $$('#chipsCapital .chip').forEach(el => {
+    el.classList.toggle('on', el.textContent === textoEsperado);
+  });
   autoCalc();
 }
 
 /* ══════════════════════════════════
    CÁLCULO EN TIEMPO REAL
-   Fórmula idéntica al test original
 ══════════════════════════════════ */
-function autoCalc(){
-  const {dias,capital}=SEL;
-  if(!dias&&!capital){ resetRes('Selecciona plazo y capital'); return; }
-  if(!dias)           { resetRes('Selecciona un plazo');       return; }
-  if(!capital)        { resetRes('Selecciona el capital');     return; }
+function autoCalc() {
+  const { dias, capital } = SEL;
+  if (!dias && !capital) { resetRes('Selecciona plazo y capital'); return; }
+  if (!dias)             { resetRes('Selecciona un plazo');        return; }
+  if (!capital)          { resetRes('Selecciona el capital');      return; }
 
-  const ip=CACHE.interes[dias];
-  if(ip===undefined||ip===null){ resetRes('Sin tasa para ese plazo'); return; }
+  // FIX extra: asegurarse de que CACHE tiene datos antes de calcular
+  if (!CACHE.interes || Object.keys(CACHE.interes).length === 0) {
+    // Intentar recargar desde localStorage en caso de que CACHE esté vacío
+    cargarEnMemoria();
+  }
 
-  /* FÓRMULA — igual que calcularDesdeCache() del test */
+  const ip = CACHE.interes[dias];
+  if (ip === undefined || ip === null) { resetRes('Sin tasa para ese plazo'); return; }
+
   const it = capital * (ip / 100);
   const tp = capital + it;
   const pd = tp / dias;
 
-  wrSS('sp_last',{dias,capital,ip,it,tp,pd});
-  showRes(dias,capital,ip,it,tp,pd);
+  wrSS('sp_last', { dias, capital, ip, it, tp, pd });
+  showRes(dias, capital, ip, it, tp, pd);
 }
 
-function fmt(n){ return '$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt(n) {
+  return '$' + n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
-function showRes(dias,capital,ip,it,tp,pd){
-  const hora=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+function showRes(dias, capital, ip, it, tp, pd) {
+  const hora = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
   $('rp').classList.add('on'); $('rh').classList.add('on');
-  cls('rTotal','on'); $('rTotal').textContent=fmt(tp);
-  cls('rSub','on');   $('rSub').textContent=`${dias} días · tasa ${ip}%`;
-  sv('rCap', fmt(capital), false, false);
-  sv('rTasa', ip+'%',      true,  false);
-  sv('rInt',  fmt(it),     false, true);
-  sv('rDia',  fmt(pd),     true,  false);
+  cls('rTotal', 'on'); $('rTotal').textContent = fmt(tp);
+  cls('rSub', 'on');   $('rSub').textContent = `${dias} días · tasa ${ip}%`;
+  sv('rCap',  fmt(capital), false, false);
+  sv('rTasa', ip + '%',     true,  false);
+  sv('rInt',  fmt(it),      false, true);
+  sv('rDia',  fmt(pd),      true,  false);
   $('rDot').classList.add('v');
-  $('rFoot').textContent='Calculado con caché · '+hora;
+  $('rFoot').textContent = 'Calculado con caché · ' + hora;
 }
 
-function sv(id,val,ac,go){
-  const el=$(id); el.textContent=val; el.classList.add('v');
-  if(ac) el.classList.add('ac'); if(go) el.classList.add('go');
+function sv(id, val, ac, go) {
+  const el = $(id);
+  el.textContent = val;
+  el.classList.add('v');
+  if (ac) el.classList.add('ac');
+  if (go) el.classList.add('go');
 }
-function cls(id,c){ $(id).classList.add(c); }
+function cls(id, c) { $(id).classList.add(c); }
 
-function resetRes(msg){
+function resetRes(msg) {
   $('rp').classList.remove('on'); $('rh').classList.remove('on');
-  $('rTotal').textContent='—'; $('rTotal').classList.remove('on');
-  $('rSub').textContent=msg||'Selecciona plazo y capital'; $('rSub').classList.remove('on');
-  ['rCap','rTasa','rInt','rDia'].forEach(id=>{
-    const el=$(id); el.textContent='—'; el.classList.remove('v','ac','go');
+  $('rTotal').textContent = '—'; $('rTotal').classList.remove('on');
+  $('rSub').textContent = msg || 'Selecciona plazo y capital';
+  $('rSub').classList.remove('on');
+  ['rCap', 'rTasa', 'rInt', 'rDia'].forEach(id => {
+    const el = $(id);
+    el.textContent = '—';
+    el.classList.remove('v', 'ac', 'go');
   });
   $('rDot').classList.remove('v');
-  $('rFoot').textContent='Esperando selección…';
+  $('rFoot').textContent = 'Esperando selección…';
 }
 
 /* ══════════════════════════════════
    UI UTILS
 ══════════════════════════════════ */
-const $  = id  => document.getElementById(id);
-const $$ = s   => document.querySelectorAll(s);
-const mk = (t,c)=>{ const e=document.createElement(t); if(c) e.className=c; return e; };
+const $  = id => document.getElementById(id);
+const $$ = s  => document.querySelectorAll(s);
+const mk = (t, c) => { const e = document.createElement(t); if (c) e.className = c; return e; };
 
-function dot(m){ $('sdot').className='sdot '+(m||''); }
-function strip(pct){
-  const f=$('strip');
-  if(pct===null){ f.classList.remove('on'); setTimeout(()=>{ f.style.width='0%'; },400); return; }
-  f.classList.add('on'); f.style.width=pct+'%';
+function dot(m) { $('sdot').className = 'sdot ' + (m || ''); }
+function strip(pct) {
+  const f = $('strip');
+  if (pct === null) {
+    f.classList.remove('on');
+    setTimeout(() => { f.style.width = '0%'; }, 400);
+    return;
+  }
+  f.classList.add('on');
+  f.style.width = pct + '%';
 }
 let _tT;
-function toast(msg,ms=2800){
+function toast(msg, ms = 2800) {
   clearTimeout(_tT);
-  const el=$('toast'); el.textContent=msg; el.classList.add('show');
-  _tT=setTimeout(()=>el.classList.remove('show'),ms);
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  _tT = setTimeout(() => el.classList.remove('show'), ms);
 }
 
 /* ══════════════════════════════════
    INIT — 100% automático
+   FIX: flujo offline con caché
+   reorganizado para garantizar que
+   CACHE se llena ANTES de renderizar
+   y autoCalc() se llama al final.
 ══════════════════════════════════ */
-async function init(){
-  dot(navigator.onLine?'ok':'off');
+async function init() {
+  dot(navigator.onLine ? 'ok' : 'off');
 
-  if(cacheOk()){
+  if (cacheOk()) {
+    // ✅ Hay caché válido → cargar en memoria primero
     cargarEnMemoria();
-    renderDias(); renderCapital(); renderBanner();
-    // Restaurar selección anterior y recalcular
-    if(SEL.dias||SEL.capital) autoCalc();
-    // Sync silencioso si caché vencido
-    const ts=getCacheTs('dias');
-    if((!ts||(Date.now()-ts)>CACHE_TTL)&&navigator.onLine) sync();
+    // Renderizar chips (aplica .on a la selección guardada en SEL)
+    renderDias();
+    renderCapital();
+    renderBanner();
+    // Recalcular si hay selección previa en sessionStorage
+    if (SEL.dias || SEL.capital) autoCalc();
+
+    // Sync silencioso en background si caché está vencido
+    const ts = getCacheTs('dias');
+    if ((!ts || (Date.now() - ts) > CACHE_TTL) && navigator.onLine) {
+      sync(); // no await — no bloquear la UI
+    }
   } else {
-    if(navigator.onLine){
+    // No hay caché o está corrupto
+    if (navigator.onLine) {
       await sync();
-      if(cacheOk()){ cargarEnMemoria(); renderDias(); renderCapital(); renderBanner(); }
-      else{
-        $('chipsDias').innerHTML='<div class="empty"><span>⚠️</span>Error al cargar datos.<br>Verifica conexión.</div>';
-        $('chipsCapital').innerHTML='';
+      // sync() ya llama a cargarEnMemoria() + renderDias() + renderCapital() internamente
+      if (!cacheOk()) {
+        $('chipsDias').innerHTML    = '<div class="empty"><span>⚠️</span>Error al cargar datos.<br>Verifica conexión.</div>';
+        $('chipsCapital').innerHTML = '';
       }
     } else {
-      $('chipsDias').innerHTML='<div class="empty"><span>📵</span>Sin conexión.<br>Se cargará al reconectar.</div>';
-      $('chipsCapital').innerHTML='';
+      $('chipsDias').innerHTML    = '<div class="empty"><span>📵</span>Sin conexión.<br>Se cargará al reconectar.</div>';
+      $('chipsCapital').innerHTML = '';
     }
   }
 
-  window.addEventListener('online', ()=>{
+  // Escuchar cambios de conectividad
+  window.addEventListener('online', () => {
     dot('busy');
-    sync().then(()=>{
-      if(cacheOk()){ cargarEnMemoria(); renderDias(true); renderCapital(true); renderBanner(); autoCalc(); }
+    sync().then(() => {
+      if (cacheOk()) {
+        cargarEnMemoria();
+        renderDias(true);
+        renderCapital(true);
+        renderBanner();
+        autoCalc();
+      }
     });
   });
-  window.addEventListener('offline', ()=>{ dot('off'); });
+  window.addEventListener('offline', () => { dot('off'); });
 }
 
 init();
