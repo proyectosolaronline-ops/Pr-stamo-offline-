@@ -447,6 +447,14 @@ async function init(){
 }
 
 init();
+  function abrirSolicitud(){
+  const sel=(()=>{try{return JSON.parse(sessionStorage.getItem('sp_sel')||'{}');}catch(e){return{};}})();
+  if(!sel.dias||!sel.capital){
+    toast('Selecciona plazo y capital primero');
+    return;
+  }
+  window.location.href='solicitud.html';
+}
 </script>
 </body>
 </html>
