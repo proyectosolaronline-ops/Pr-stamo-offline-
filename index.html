@@ -26,7 +26,7 @@ body::before{
 }
 .app{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 16px 60px}
 
-/* HEADER */
+/* ── HEADER ── */
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 0 6px}
 .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.28rem;letter-spacing:-.03em}
 .logo em{color:var(--acc);font-style:normal}
@@ -36,22 +36,22 @@ body::before{
 .sdot.busy{background:var(--blue);animation:pulse .9s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* SYNC STRIP */
+/* ── SYNC STRIP 2px ── */
 .sw{height:2px;border-radius:99px;background:var(--b1);overflow:hidden;margin-bottom:6px}
 .sf{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--blue));transition:width .35s,opacity .4s;opacity:0}
 .sf.on{opacity:1}
 
-/* BANNER */
+/* ── BANNER ── */
 .banner{display:none;align-items:center;gap:9px;margin:4px 0 10px;padding:10px 14px;border-radius:var(--rs);background:rgba(0,229,176,.07);border:1px solid rgba(0,229,176,.18);font-size:.83rem;color:var(--acc)}
 .banner.show{display:flex}
 
-/* SECTION */
+/* ── SECTION LABEL ── */
 .slabel{font-family:'Syne',sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:22px 0 10px}
 
-/* CARD */
+/* ── CARD ── */
 .card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:20px}
 
-/* CHIPS */
+/* ── CHIPS ── */
 .clabel{font-size:.74rem;font-weight:500;color:var(--soft);display:flex;align-items:center;gap:6px;margin-bottom:10px}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
 .chips.g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -59,35 +59,32 @@ body::before{
   padding:8px 16px;border-radius:99px;border:1.5px solid var(--b2);background:var(--surf);
   color:var(--soft);font-size:.82rem;font-weight:500;cursor:pointer;user-select:none;
   transition:border-color .13s,background .13s,color .13s,transform .1s;
-  -webkit-user-select:none;
 }
 .chips.g .chip{border-radius:var(--rs);text-align:center;padding:10px 4px}
 .chip:hover{border-color:var(--acc);color:var(--txt)}
 .chip:active{transform:scale(.96)}
 .chip.on{border-color:var(--acc);background:rgba(0,229,176,.12);color:var(--acc);font-weight:600}
-
-/* SKELETON */
 .sk{background:linear-gradient(90deg,var(--surf) 25%,var(--card2) 50%,var(--surf) 75%);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:99px;height:36px}
 .chips.g .sk{border-radius:var(--rs)}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .divider{height:1px;background:var(--b1);margin:0 0 20px}
 
-/* RESULTADO */
+/* ── RESULTADO EN TIEMPO REAL ── */
 .rp{margin-top:20px;border-radius:var(--r);overflow:hidden;border:1px solid var(--b2);background:var(--card2);transition:border-color .3s,box-shadow .3s}
 .rp.on{border-color:rgba(0,229,176,.28);box-shadow:0 0 36px rgba(0,229,176,.08),0 8px 28px rgba(0,0,0,.45)}
 .rh{padding:20px 20px 14px;text-align:center;background:linear-gradient(135deg,rgba(0,229,176,.07) 0%,rgba(59,130,246,.04) 100%);border-bottom:1px solid var(--b1);transition:background .3s}
 .rh.on{background:linear-gradient(135deg,rgba(0,229,176,.12) 0%,rgba(59,130,246,.08) 100%)}
 .rl{font-size:.66rem;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
-.rb{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--mut);transition:color .2s}
+.rb{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--mut);transition:color .25s}
 .rb.on{color:var(--acc)}
-.rs{font-size:.76rem;color:var(--mut);margin-top:5px;min-height:1.2em;transition:color .2s}
+.rs{font-size:.76rem;color:var(--mut);margin-top:5px;min-height:1.2em;transition:color .25s}
 .rs.on{color:var(--soft)}
 .rg{display:grid;grid-template-columns:1fr 1fr}
 .ri{padding:14px 16px;border-right:1px solid var(--b1);border-bottom:1px solid var(--b1)}
 .ri:nth-child(2n){border-right:none}
 .ri:nth-last-child(-n+2){border-bottom:none}
 .rik{font-size:.65rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
-.riv{font-family:'Syne',sans-serif;font-size:1.08rem;font-weight:700;color:var(--b2);transition:color .2s}
+.riv{font-family:'Syne',sans-serif;font-size:1.08rem;font-weight:700;color:var(--b2);transition:color .25s}
 .riv.v{color:var(--txt)}
 .riv.v.ac{color:var(--acc)}
 .riv.v.go{color:var(--gold)}
@@ -95,7 +92,7 @@ body::before{
 .rfd{width:4px;height:4px;border-radius:50%;background:var(--acc);opacity:0;transition:opacity .3s}
 .rfd.v{opacity:1}
 
-/* EMPTY / TOAST */
+/* ── EMPTY / TOAST ── */
 .empty{padding:20px 0;text-align:center;font-size:.81rem;color:var(--mut);line-height:1.7}
 .empty span{font-size:1.7rem;display:block;margin-bottom:7px;opacity:.35}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(52px);background:var(--card2);border:1px solid var(--b2);padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:200;pointer-events:none}
@@ -109,13 +106,17 @@ body::before{
 </head>
 <body>
 <div class="app">
+
   <header class="hdr">
     <div class="logo">Sim<em>Préstamo</em></div>
     <div class="sdot" id="sdot"></div>
   </header>
+
   <div class="sw"><div class="sf" id="strip"></div></div>
   <div class="banner" id="banner"><span>📢</span><span id="bannerTxt"></span></div>
+
   <p class="slabel">Simulador de préstamo</p>
+
   <div class="card">
     <div class="clabel">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -130,7 +131,9 @@ body::before{
       <div class="sk" style="width:76px"></div>
       <div class="sk" style="width:76px"></div>
     </div>
+
     <div class="divider"></div>
+
     <div class="clabel">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
         <line x1="12" y1="1" x2="12" y2="23"/>
@@ -142,6 +145,7 @@ body::before{
       <div class="sk"></div><div class="sk"></div><div class="sk"></div>
       <div class="sk"></div><div class="sk"></div><div class="sk"></div>
     </div>
+
     <!-- RESULTADO TIEMPO REAL -->
     <div class="rp" id="rp">
       <div class="rh" id="rh">
@@ -151,9 +155,9 @@ body::before{
       </div>
       <div class="rg">
         <div class="ri"><div class="rik">Capital</div><div class="riv" id="rCap">—</div></div>
-        <div class="ri"><div class="rik">Tasa</div><div class="riv" id="rTasa">—</div></div>
-        <div class="ri"><div class="rik">Interés total</div><div class="riv" id="rInt">—</div></div>
-        <div class="ri"><div class="rik">Pago diario</div><div class="riv" id="rDia">—</div></div>
+        <div class="ri"><div class="rik">Tasa</div><div class="riv ac" id="rTasa">—</div></div>
+        <div class="ri"><div class="rik">Interés total</div><div class="riv go" id="rInt">—</div></div>
+        <div class="ri"><div class="rik">Pago diario</div><div class="riv ac" id="rDia">—</div></div>
       </div>
       <div class="rf">
         <div class="rfd" id="rDot"></div>
@@ -165,82 +169,116 @@ body::before{
 <div id="toast"></div>
 
 <script>
-/* ════════════════════════════════════════
-   SERVICE WORKER INLINE — sin archivo externo
-════════════════════════════════════════ */
-if ('serviceWorker' in navigator) {
-  const code = `
-const V='sp-v3';
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(V).then(c=>c.addAll([self.registration.scope])));
+/* ══════════════════════════════════════════════════
+   SERVICE WORKER — se registra a sí mismo desde
+   un Blob. No necesita archivo sw.js externo.
+   Intercepta recargas offline → sirve este HTML
+   desde su propio caché → nunca aparece otra pantalla.
+══════════════════════════════════════════════════ */
+(function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+
+  // Código del SW como string → Blob → URL objeto
+  const swCode = `
+const VER = 'sp-v2';
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(VER).then(c =>
+      // Cachea la URL actual del simulador (sea cual sea su nombre)
+      c.addAll([self.registration.scope])
+    )
+  );
   self.skipWaiting();
 });
-self.addEventListener('activate',e=>{
-  e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))));
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== VER).map(k => caches.delete(k)))
+    )
+  );
   self.clients.claim();
 });
-self.addEventListener('fetch',e=>{
-  if(e.request.mode!=='navigate') return;
+self.addEventListener('message', e => {
+  if (e.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+self.addEventListener('fetch', e => {
+  if (e.request.mode !== 'navigate') return;
   e.respondWith(
-    fetch(e.request).then(r=>{
-      caches.open(V).then(c=>c.put(e.request,r.clone()));
-      return r;
-    }).catch(()=>caches.match(e.request).then(h=>h||caches.match(self.registration.scope)))
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(VER).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() =>
+        caches.match(e.request).then(hit => hit || caches.match(self.registration.scope))
+      )
   );
-});`;
-  const url = URL.createObjectURL(new Blob([code],{type:'application/javascript'}));
-  navigator.serviceWorker.register(url,{scope:'./'}).catch(()=>{});
-}
+});
+  `;
 
-/* ════════════════════════════════════════
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swURL = URL.createObjectURL(blob);
+
+  navigator.serviceWorker.register(swURL, { scope: './' })
+    .then(reg => {
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw?.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller)
+            nw.postMessage({ type: 'SKIP_WAITING' });
+        });
+      });
+    })
+    .catch(() => {}); // silencioso — no afecta la app
+})();
+
+/* ══════════════════════════════════
    CONFIG
-════════════════════════════════════════ */
+══════════════════════════════════ */
 const SHEET_ID  = '19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
 const CACHE_TTL = 12 * 60 * 60 * 1000;
 
-/* ════════════════════════════════════════
-   ESTADO GLOBAL — vive en memoria JS pura
-   NO depende de sessionStorage para calcular
-   sessionStorage solo guarda la selección
-   para restaurar al recargar
-════════════════════════════════════════ */
-// selDias y selCapital son las variables de verdad
-let selDias    = null;
-let selCapital = null;
-
-// Caché de datos en memoria
-let C = { dias:[], capital:[], interes:{}, banner:{activo:false,texto:''} };
+/* ══════════════════════════════════
+   ESTADO
+══════════════════════════════════ */
+let SEL   = rdSS('sp_sel') || { dias:null, capital:null };
+let CACHE = { dias:[], capital:[], interes:{}, banner:{activo:false,texto:''} };
 let syncing = false;
 
-/* ════════════════════════════════════════
+function rdSS(k){ try{ return JSON.parse(sessionStorage.getItem(k)); }catch(e){ return null; } }
+function wrSS(k,v){ try{ sessionStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+/* ══════════════════════════════════
    LOCALSTORAGE — claves del test original
-════════════════════════════════════════ */
-function save(k,d){ localStorage.setItem('simulador_'+k,JSON.stringify({data:d,ts:Date.now()})); }
-function load(k){
+══════════════════════════════════ */
+function saveToCache(k,d){ localStorage.setItem('simulador_'+k, JSON.stringify({data:d,timestamp:Date.now()})); }
+function getFromCache(k){
   try{
-    const r=localStorage.getItem('simulador_'+k);
-    if(!r) return null;
-    const p=JSON.parse(r);
+    const raw=localStorage.getItem('simulador_'+k);
+    if(!raw) return null;
+    const p=JSON.parse(raw);
     return p?.data!==undefined ? p.data : p;
   }catch(e){ return null; }
 }
-function loadTs(k){
-  try{ return JSON.parse(localStorage.getItem('simulador_'+k))?.ts||null; }catch(e){ return null; }
+function getCacheTs(k){
+  try{ return JSON.parse(localStorage.getItem('simulador_'+k))?.timestamp||null; }catch(e){ return null; }
 }
 function cacheOk(){
-  const d=load('dias'),c=load('capital'),i=load('interes');
-  return Array.isArray(d)&&d.length>0&&Array.isArray(c)&&c.length>0&&i&&Object.keys(i).length>0;
+  const d=getFromCache('dias'), c=getFromCache('capital'), i=getFromCache('interes');
+  return Array.isArray(d)&&d.length>0 && Array.isArray(c)&&c.length>0 && i&&Object.keys(i).length>0;
 }
-function intoMem(){
-  C.dias    = load('dias')    || [];
-  C.capital = load('capital') || [];
-  C.interes = load('interes') || {};
-  C.banner  = load('banner')  || {activo:false,texto:''};
+function cargarEnMemoria(){
+  CACHE.dias    = getFromCache('dias')    || [];
+  CACHE.capital = getFromCache('capital') || [];
+  CACHE.interes = getFromCache('interes') || {};
+  CACHE.banner  = getFromCache('banner')  || {activo:false,texto:''};
 }
 
-/* ════════════════════════════════════════
-   NORMALIZACIÓN
-════════════════════════════════════════ */
+/* ══════════════════════════════════
+   NORMALIZACIÓN — igual que el test
+══════════════════════════════════ */
 function norm(v){
   if(typeof v==='number') return isFinite(v)?v:NaN;
   if(v==null||v==='') return NaN;
@@ -251,9 +289,9 @@ function norm(v){
   return isNaN(n)||!isFinite(n)?NaN:n;
 }
 
-/* ════════════════════════════════════════
+/* ══════════════════════════════════
    FETCH SHEETS
-════════════════════════════════════════ */
+══════════════════════════════════ */
 async function fetchSheet(nombre){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(nombre)}`;
   const r=await fetch(url,{cache:'no-store'});
@@ -262,12 +300,12 @@ async function fetchSheet(nombre){
   const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
   return json.table?.rows||[];
 }
-async function leerA(n){
+async function leerColumnaA(n){
   const rows=await fetchSheet(n); const vals=[];
   rows.forEach((row,i)=>{
     const v=row?.c?.[0]?.v;
     if(i===0&&isNaN(parseFloat(v))) return;
-    const x=norm(v); if(!isNaN(x)) vals.push(x);
+    const n=norm(v); if(!isNaN(n)) vals.push(n);
   });
   return vals;
 }
@@ -282,249 +320,202 @@ async function leerInteres(dias){
     if(n<0||n>100) return;
     vals.push(n);
   });
-  const obj={},len=Math.min(dias.length,vals.length);
+  const obj={}, len=Math.min(dias.length,vals.length);
   for(let i=0;i<len;i++) obj[dias[i]]=vals[i];
   return obj;
 }
 async function leerBanner(){
   try{
     const rows=await fetchSheet('Banner');
-    if(rows.length>1){const t=rows[1]?.c?.[0]?.v||'';return{activo:t.trim()!=='',texto:t};}
+    if(rows.length>1){ const t=rows[1]?.c?.[0]?.v||''; return{activo:t.trim()!=='',texto:t}; }
   }catch(_){}
   return{activo:false,texto:''};
 }
 
-/* ════════════════════════════════════════
+/* ══════════════════════════════════
    SYNC SILENCIOSO
-════════════════════════════════════════ */
+══════════════════════════════════ */
 async function sync(){
   if(syncing||!navigator.onLine) return;
-  syncing=true; dot('busy'); pct(8);
+  syncing=true; dot('busy'); strip(8);
   try{
-    const dias=await leerA('Dias');
+    const dias=await leerColumnaA('Dias');
     if(!dias.length) throw new Error('Dias vacío');
-    save('dias',dias); pct(30);
+    saveToCache('dias',dias); strip(30);
 
-    const capital=await leerA('Capital');
+    const capital=await leerColumnaA('Capital');
     if(!capital.length) throw new Error('Capital vacío');
-    save('capital',capital); pct(55);
+    saveToCache('capital',capital); strip(55);
 
     const interes=await leerInteres(dias);
     if(!Object.keys(interes).length) throw new Error('Interes vacío');
-    save('interes',interes); pct(82);
+    saveToCache('interes',interes); strip(82);
 
     const banner=await leerBanner();
-    save('banner',banner); pct(100);
+    saveToCache('banner',banner); strip(100);
 
-    intoMem();
-    paintDias(); paintCapital(); paintBanner();
-    // NO tocamos selDias/selCapital → recalcular con los nuevos datos
-    calc();
-    dot('ok'); setTimeout(()=>pct(null),500);
+    cargarEnMemoria();
+    renderDias(true); renderCapital(true); renderBanner();
+    autoCalc();
+    dot('ok'); setTimeout(()=>strip(null),500);
   }catch(err){
-    dot(navigator.onLine?'ok':'off'); pct(null);
-    if(!cacheOk()) toast('Error: '+err.message,4000);
+    dot(navigator.onLine?'ok':'off'); strip(null);
+    if(!cacheOk()) toast('Error al cargar: '+err.message,4000);
   }
   syncing=false;
 }
 
-/* ════════════════════════════════════════
-   RENDER CHIPS
-   — Pinta chips desde C (memoria)
-   — Marca el chip activo según selDias/selCapital
-   — Cada chip llama directamente a pickD() / pickC()
-════════════════════════════════════════ */
-function paintDias(){
-  const el=gi('chipsDias'); el.innerHTML='';
-  if(!C.dias.length){
-    el.innerHTML='<div class="empty"><span>📅</span>Cargando…</div>'; return;
-  }
-  C.dias.forEach(d=>{
-    const c=mk('div','chip'+(selDias===d?' on':''));
-    c.textContent=d+' días';
-    c.addEventListener('click', ()=>pickD(d)); // addEventListener, no onclick
-    el.appendChild(c);
+/* ══════════════════════════════════
+   RENDER
+══════════════════════════════════ */
+function renderDias(keep=false){
+  const el=$('chipsDias');
+  if(!CACHE.dias.length){ el.innerHTML='<div class="empty"><span>📅</span>Cargando…</div>'; return; }
+  if(keep&&SEL.dias&&!CACHE.dias.includes(SEL.dias)) SEL.dias=null;
+  el.innerHTML='';
+  CACHE.dias.forEach(d=>{
+    const c=mk('div','chip'+(SEL.dias===d?' on':''));
+    c.textContent=d+' días'; c.onclick=()=>selD(d); el.appendChild(c);
   });
 }
-
-function paintCapital(){
-  const el=gi('chipsCapital'); el.innerHTML='';
-  if(!C.capital.length){
-    el.innerHTML='<div class="empty"><span>💰</span>Cargando…</div>'; return;
-  }
-  C.capital.forEach(c=>{
-    const chip=mk('div','chip'+(selCapital===c?' on':''));
+function renderCapital(keep=false){
+  const el=$('chipsCapital');
+  if(!CACHE.capital.length){ el.innerHTML='<div class="empty"><span>💰</span>Cargando…</div>'; return; }
+  if(keep&&SEL.capital&&!CACHE.capital.includes(SEL.capital)) SEL.capital=null;
+  el.innerHTML='';
+  CACHE.capital.forEach(c=>{
+    const chip=mk('div','chip'+(SEL.capital===c?' on':''));
     chip.textContent='$'+c.toLocaleString('es-MX');
-    chip.addEventListener('click', ()=>pickC(c));
-    el.appendChild(chip);
+    chip.onclick=()=>selC(c); el.appendChild(chip);
   });
 }
-
-function paintBanner(){
-  const b=C.banner;
-  if(b?.activo&&b.texto?.trim()){gi('bannerTxt').textContent=b.texto;gi('banner').classList.add('show');}
-  else gi('banner').classList.remove('show');
+function renderBanner(){
+  const b=CACHE.banner;
+  if(b?.activo&&b.texto?.trim()){ $('bannerTxt').textContent=b.texto; $('banner').classList.add('show'); }
+  else $('banner').classList.remove('show');
 }
 
-/* ════════════════════════════════════════
-   PICK — actualiza variable + chip + calcula
-════════════════════════════════════════ */
-function pickD(d){
-  selDias=d;
-  // marcar visualmente
-  gi('chipsDias').querySelectorAll('.chip').forEach(c=>{
-    c.classList.toggle('on', parseInt(c.textContent)===d);
-  });
-  calc();
+/* ══════════════════════════════════
+   SELECCIÓN → cálculo inmediato
+══════════════════════════════════ */
+function selD(d){
+  SEL.dias=d; wrSS('sp_sel',SEL);
+  $$('#chipsDias .chip').forEach(c=>c.classList.toggle('on',parseInt(c.textContent)===d));
+  autoCalc();
+}
+function selC(c){
+  SEL.capital=c; wrSS('sp_sel',SEL);
+  $$('#chipsCapital .chip').forEach(el=>el.classList.toggle('on',el.textContent==='$'+c.toLocaleString('es-MX')));
+  autoCalc();
 }
 
-function pickC(c){
-  selCapital=c;
-  gi('chipsCapital').querySelectorAll('.chip').forEach(el=>{
-    el.classList.toggle('on', el.textContent==='$'+c.toLocaleString('es-MX'));
-  });
-  calc();
-}
-
-/* ════════════════════════════════════════
-   CÁLCULO — siempre desde C.interes en memoria
+/* ══════════════════════════════════
+   CÁLCULO EN TIEMPO REAL
    Fórmula idéntica al test original
-   Se ejecuta en CADA click de chip
-════════════════════════════════════════ */
-function calc(){
-  // Guía progresiva al usuario
-  if(!selDias && !selCapital){ reset('Selecciona plazo y capital'); return; }
-  if(!selDias)                { reset('Selecciona un plazo');       return; }
-  if(!selCapital)             { reset('Selecciona el capital');     return; }
+══════════════════════════════════ */
+function autoCalc(){
+  const {dias,capital}=SEL;
+  if(!dias&&!capital){ resetRes('Selecciona plazo y capital'); return; }
+  if(!dias)           { resetRes('Selecciona un plazo');       return; }
+  if(!capital)        { resetRes('Selecciona el capital');     return; }
 
-  const ip = C.interes[selDias];
-  if(ip===undefined||ip===null){ reset('Sin tasa para ese plazo'); return; }
+  const ip=CACHE.interes[dias];
+  if(ip===undefined||ip===null){ resetRes('Sin tasa para ese plazo'); return; }
 
   /* FÓRMULA — igual que calcularDesdeCache() del test */
-  const it = selCapital * (ip / 100);   // interés total
-  const tp = selCapital + it;            // total a pagar
-  const pd = tp / selDias;              // pago diario
+  const it = capital * (ip / 100);
+  const tp = capital + it;
+  const pd = tp / dias;
 
-  showRes(selDias, selCapital, ip, it, tp, pd);
+  wrSS('sp_last',{dias,capital,ip,it,tp,pd});
+  showRes(dias,capital,ip,it,tp,pd);
 }
 
-/* ════════════════════════════════════════
-   MOSTRAR RESULTADO
-════════════════════════════════════════ */
 function fmt(n){ return '$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function showRes(dias,capital,ip,it,tp,pd){
   const hora=new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
-
-  gi('rp').classList.add('on');
-  gi('rh').classList.add('on');
-  gi('rTotal').textContent=fmt(tp);    gi('rTotal').classList.add('on');
-  gi('rSub').textContent=`${dias} días · tasa ${ip}%`; gi('rSub').classList.add('on');
-
-  setV('rCap',  fmt(capital), '',   '');
-  setV('rTasa', ip+'%',       'ac', '');
-  setV('rInt',  fmt(it),      '',   'go');
-  setV('rDia',  fmt(pd),      'ac', '');
-
-  gi('rDot').classList.add('v');
-  gi('rFoot').textContent='Calculado con caché · '+hora;
+  $('rp').classList.add('on'); $('rh').classList.add('on');
+  cls('rTotal','on'); $('rTotal').textContent=fmt(tp);
+  cls('rSub','on');   $('rSub').textContent=`${dias} días · tasa ${ip}%`;
+  sv('rCap', fmt(capital), false, false);
+  sv('rTasa', ip+'%',      true,  false);
+  sv('rInt',  fmt(it),     false, true);
+  sv('rDia',  fmt(pd),     true,  false);
+  $('rDot').classList.add('v');
+  $('rFoot').textContent='Calculado con caché · '+hora;
 }
 
-function setV(id,val,ac,go){
-  const el=gi(id);
-  el.textContent=val;
-  el.className='riv v'+(ac?' '+ac:'')+(go?' '+go:'');
+function sv(id,val,ac,go){
+  const el=$(id); el.textContent=val; el.classList.add('v');
+  if(ac) el.classList.add('ac'); if(go) el.classList.add('go');
 }
+function cls(id,c){ $(id).classList.add(c); }
 
-function reset(msg){
-  gi('rp').classList.remove('on');
-  gi('rh').classList.remove('on');
-  gi('rTotal').textContent='—'; gi('rTotal').classList.remove('on');
-  gi('rSub').textContent=msg;   gi('rSub').classList.remove('on');
+function resetRes(msg){
+  $('rp').classList.remove('on'); $('rh').classList.remove('on');
+  $('rTotal').textContent='—'; $('rTotal').classList.remove('on');
+  $('rSub').textContent=msg||'Selecciona plazo y capital'; $('rSub').classList.remove('on');
   ['rCap','rTasa','rInt','rDia'].forEach(id=>{
-    const el=gi(id); el.textContent='—'; el.className='riv';
+    const el=$(id); el.textContent='—'; el.classList.remove('v','ac','go');
   });
-  gi('rDot').classList.remove('v');
-  gi('rFoot').textContent='Esperando selección…';
+  $('rDot').classList.remove('v');
+  $('rFoot').textContent='Esperando selección…';
 }
 
-/* ════════════════════════════════════════
+/* ══════════════════════════════════
    UI UTILS
-════════════════════════════════════════ */
-const gi  = id => document.getElementById(id);
-const mk  = (t,c)=>{ const e=document.createElement(t); if(c) e.className=c; return e; };
+══════════════════════════════════ */
+const $  = id  => document.getElementById(id);
+const $$ = s   => document.querySelectorAll(s);
+const mk = (t,c)=>{ const e=document.createElement(t); if(c) e.className=c; return e; };
 
-function dot(m){ gi('sdot').className='sdot '+(m||''); }
-function pct(v){
-  const f=gi('strip');
-  if(v===null){ f.classList.remove('on'); setTimeout(()=>{f.style.width='0%';},400); return; }
-  f.classList.add('on'); f.style.width=v+'%';
+function dot(m){ $('sdot').className='sdot '+(m||''); }
+function strip(pct){
+  const f=$('strip');
+  if(pct===null){ f.classList.remove('on'); setTimeout(()=>{ f.style.width='0%'; },400); return; }
+  f.classList.add('on'); f.style.width=pct+'%';
 }
 let _tT;
 function toast(msg,ms=2800){
   clearTimeout(_tT);
-  const el=gi('toast'); el.textContent=msg; el.classList.add('show');
+  const el=$('toast'); el.textContent=msg; el.classList.add('show');
   _tT=setTimeout(()=>el.classList.remove('show'),ms);
 }
 
-/* ════════════════════════════════════════
+/* ══════════════════════════════════
    INIT — 100% automático
-════════════════════════════════════════ */
+══════════════════════════════════ */
 async function init(){
   dot(navigator.onLine?'ok':'off');
 
   if(cacheOk()){
-    // ── Ruta rápida ──
-    intoMem();
-    paintDias();
-    paintCapital();
-    paintBanner();
-    // Restaurar selección previa desde sessionStorage (solo para F5)
-    try{
-      const prev=JSON.parse(sessionStorage.getItem('sp_sel')||'{}');
-      if(prev.dias    && C.dias.includes(prev.dias))       selDias=prev.dias;
-      if(prev.capital && C.capital.includes(prev.capital)) selCapital=prev.capital;
-    }catch(e){}
-    // Re-pintar chips marcados y calcular
-    if(selDias)    gi('chipsDias').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',parseInt(c.textContent)===selDias));
-    if(selCapital) gi('chipsCapital').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.textContent==='$'+selCapital.toLocaleString('es-MX')));
-    calc();
-
+    cargarEnMemoria();
+    renderDias(); renderCapital(); renderBanner();
+    // Restaurar selección anterior y recalcular
+    if(SEL.dias||SEL.capital) autoCalc();
     // Sync silencioso si caché vencido
-    const ts=loadTs('dias');
+    const ts=getCacheTs('dias');
     if((!ts||(Date.now()-ts)>CACHE_TTL)&&navigator.onLine) sync();
-
   } else {
-    // ── Sin caché ──
     if(navigator.onLine){
       await sync();
+      if(cacheOk()){ cargarEnMemoria(); renderDias(); renderCapital(); renderBanner(); }
+      else{
+        $('chipsDias').innerHTML='<div class="empty"><span>⚠️</span>Error al cargar datos.<br>Verifica conexión.</div>';
+        $('chipsCapital').innerHTML='';
+      }
     } else {
-      gi('chipsDias').innerHTML='<div class="empty"><span>📵</span>Sin conexión.<br>Se cargará al reconectar.</div>';
-      gi('chipsCapital').innerHTML='';
+      $('chipsDias').innerHTML='<div class="empty"><span>📵</span>Sin conexión.<br>Se cargará al reconectar.</div>';
+      $('chipsCapital').innerHTML='';
     }
   }
 
-  // Guardar selección en sessionStorage en cada cambio
-  // (se hace en pickD/pickC via proxy)
-  const origPickD = pickD, origPickC = pickC;
-
-  window.pickD = function(d){
-    selDias=d;
-    try{ const s=JSON.parse(sessionStorage.getItem('sp_sel')||'{}'); s.dias=d; sessionStorage.setItem('sp_sel',JSON.stringify(s)); }catch(e){}
-    gi('chipsDias').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',parseInt(c.textContent)===d));
-    calc();
-  };
-  window.pickC = function(c){
-    selCapital=c;
-    try{ const s=JSON.parse(sessionStorage.getItem('sp_sel')||'{}'); s.capital=c; sessionStorage.setItem('sp_sel',JSON.stringify(s)); }catch(e){}
-    gi('chipsCapital').querySelectorAll('.chip').forEach(el=>el.classList.toggle('on',el.textContent==='$'+c.toLocaleString('es-MX')));
-    calc();
-  };
-
-  // Red
   window.addEventListener('online', ()=>{
     dot('busy');
-    sync().then(()=>{ if(cacheOk()){ intoMem(); paintDias(); paintCapital(); paintBanner(); calc(); } });
+    sync().then(()=>{
+      if(cacheOk()){ cargarEnMemoria(); renderDias(true); renderCapital(true); renderBanner(); autoCalc(); }
+    });
   });
   window.addEventListener('offline', ()=>{ dot('off'); });
 }
