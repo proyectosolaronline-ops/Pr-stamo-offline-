@@ -1,50 +1,29 @@
-/* ═══════════════════════════════════════════════
-   SimPréstamo — Service Worker
-   Intercepta recargas offline y sirve el propio
-   simulador desde caché (evita pantallas externas)
-═══════════════════════════════════════════════ */
-const SW_VERSION  = 'simprestamo-v1';
-const CACHE_FILES = ['/simulador-prestamos.html'];
+const V = 'sp-v4';
 
-/* Al instalar: guardar el HTML en caché de SW */
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(SW_VERSION).then(cache => cache.addAll(CACHE_FILES))
+    caches.open(V).then(c => c.addAll(['./', './index.html']))
   );
   self.skipWaiting();
 });
 
-/* Al activar: limpiar versiones anteriores */
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== SW_VERSION).map(k => caches.delete(k)))
-    )
+    caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k))))
   );
   self.clients.claim();
 });
 
-/* Fetch: Network first → si falla → caché propio */
 self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-
-  // Solo interceptar navegación al propio simulador
-  if (e.request.mode === 'navigate') {
-    e.respondWith(
-      fetch(e.request)
-        .then(res => {
-          // Online: actualizar caché del SW con la versión fresca
-          const clone = res.clone();
-          caches.open(SW_VERSION).then(c => c.put(e.request, clone));
-          return res;
-        })
-        .catch(() =>
-          // Offline: servir desde caché del SW (nunca redirigir a otro archivo)
-          caches.match(e.request).then(cached =>
-            cached || caches.match('/simulador-prestamos.html')
-          )
-        )
-    );
-  }
-  // Requests de red (Sheets API) — siempre network, sin interceptar
+  if (e.request.mode !== 'navigate') return;
+  e.respondWith(
+    fetch(e.request)
+      .then(r => {
+        caches.open(V).then(c => c.put(e.request, r.clone()));
+        return r;
+      })
+      .catch(() =>
+        caches.match(e.request).then(h => h || caches.match('./index.html'))
+      )
+  );
 });
