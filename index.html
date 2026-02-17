@@ -170,6 +170,41 @@ body::before{
   </div>
 </div>
 <div id="toast"></div>
+<!-- BOTÓN FLOTANTE → compartir.html -->
+<style>
+.fab-cmp{
+  position:fixed;bottom:82px;right:16px;z-index:100;
+  width:52px;height:52px;border-radius:50%;
+  background:var(--acc);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 24px rgba(0,229,176,.35),0 2px 8px rgba(0,0,0,.4);
+  transition:transform .15s,box-shadow .15s;
+  animation:fabIn .5s .1s cubic-bezier(.34,1.56,.64,1) both;
+}
+.fab-cmp:hover{transform:scale(1.1);box-shadow:0 10px 32px rgba(0,229,176,.5)}
+.fab-cmp:active{transform:scale(.95)}
+.fab-cmp-tip{
+  position:fixed;bottom:84px;right:78px;z-index:100;
+  background:var(--card2);border:1px solid var(--b2);
+  color:var(--txt);font-size:.75rem;font-family:'DM Sans',sans-serif;
+  padding:7px 12px;border-radius:99px;
+  white-space:nowrap;pointer-events:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+  opacity:0;transform:translateX(8px);
+  transition:opacity .2s,transform .2s;
+}
+.fab-cmp:hover + .fab-cmp-tip,
+.fab-cmp-tip:hover{opacity:1;transform:translateX(0)}
+</style>
+
+<button class="fab-cmp" onclick="window.location.href='compartir.html'" title="Compartir simulador">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+  </svg>
+</button>
+<div class="fab-cmp-tip">Compartir simulador</div>
 
 <!-- BOTÓN FLOTANTE → solicitud.html -->
 <style>
