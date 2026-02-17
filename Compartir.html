@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Compartir SimPréstamo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#080b10; --surf:#0f1319; --card:#141a24; --card2:#19202e;
+  --b1:#1c2535; --b2:#243047;
+  --acc:#00e5b0; --blue:#3b82f6; --gold:#f59e0b;
+  --wa:#25D366; --email:#ea4335;
+  --txt:#dce8f5; --mut:#4d617d; --soft:#7a92b0;
+  --r:14px; --rs:9px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 88% 4%,rgba(59,130,246,.08) 0%,transparent 65%),
+    radial-gradient(ellipse 50% 60% at 4% 96%,rgba(0,229,176,.05) 0%,transparent 65%);
+}
+.wrap{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 16px 40px}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 0 6px}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.28rem;letter-spacing:-.03em}
+.logo em{color:var(--acc);font-style:normal}
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  font-size:.78rem;color:var(--soft);background:none;border:none;
+  cursor:pointer;transition:color .2s;padding:6px 0;
+}
+.back-btn:hover{color:var(--acc)}
+
+/* SECTION LABEL */
+.slabel{
+  font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mut);
+  margin:22px 0 10px;
+}
+
+/* URL CARD */
+.url-card{
+  background:var(--card);border:1px solid var(--b1);
+  border-radius:var(--r);padding:16px 18px;
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.url-text{
+  flex:1;font-size:.8rem;color:var(--soft);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-family:'DM Sans',sans-serif;
+}
+.copy-btn{
+  flex-shrink:0;
+  background:var(--b2);border:none;border-radius:var(--rs);
+  color:var(--txt);font-size:.75rem;font-weight:600;
+  padding:7px 12px;cursor:pointer;
+  transition:background .15s,color .15s;white-space:nowrap;
+}
+.copy-btn:hover{background:var(--acc);color:#000}
+.copy-btn.copied{background:var(--acc);color:#000}
+
+/* SHARE BUTTONS */
+.share-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;margin-bottom:20px;
+}
+.share-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;padding:20px 12px;
+  border:1.5px solid var(--b2);border-radius:var(--r);
+  background:var(--card);cursor:pointer;
+  transition:border-color .15s,background .15s,transform .1s;
+  text-decoration:none;
+}
+.share-btn:hover{transform:translateY(-2px)}
+.share-btn:active{transform:scale(.97)}
+.share-btn.wa{border-color:rgba(37,211,102,.3)}
+.share-btn.wa:hover{border-color:var(--wa);background:rgba(37,211,102,.07)}
+.share-btn.email{border-color:rgba(234,67,53,.3)}
+.share-btn.email:hover{border-color:var(--email);background:rgba(234,67,53,.07)}
+.share-btn.sms{border-color:rgba(59,130,246,.3)}
+.share-btn.sms:hover{border-color:var(--blue);background:rgba(59,130,246,.07)}
+.share-btn.native{border-color:rgba(245,158,11,.3)}
+.share-btn.native:hover{border-color:var(--gold);background:rgba(245,158,11,.07)}
+
+.share-icon{font-size:1.8rem;line-height:1}
+.share-lbl{font-size:.78rem;font-weight:600;color:var(--soft);text-align:center}
+.share-btn.wa    .share-lbl{color:#25D366}
+.share-btn.email .share-lbl{color:#ea4335}
+.share-btn.sms   .share-lbl{color:var(--blue)}
+.share-btn.native .share-lbl{color:var(--gold)}
+
+/* QR CARD */
+.qr-card{
+  background:var(--card);border:1px solid var(--b1);
+  border-radius:var(--r);padding:24px 20px;
+  text-align:center;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.qr-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--acc));
+}
+.qr-title{
+  font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;
+  color:var(--txt);margin-bottom:4px;
+}
+.qr-sub{font-size:.74rem;color:var(--mut);margin-bottom:18px}
+
+#qrcode{
+  display:inline-block;
+  background:white;padding:12px;border-radius:10px;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+}
+#qrcode img,#qrcode canvas{display:block}
+
+.qr-hint{
+  font-size:.72rem;color:var(--mut);
+  margin-top:14px;line-height:1.6;
+}
+
+/* RESUMEN SIMULACIÓN */
+.sim-card{
+  background:var(--card);border:1px solid var(--b1);
+  border-radius:var(--r);padding:16px 18px;
+  margin-bottom:20px;position:relative;overflow:hidden;
+}
+.sim-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--acc),var(--blue));
+}
+.sim-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;border-bottom:1px solid var(--b1);font-size:.83rem;
+}
+.sim-row:last-child{border-bottom:none}
+.sim-row .k{color:var(--mut)}
+.sim-row .v{font-family:'Syne',sans-serif;font-weight:700;color:var(--txt)}
+.sim-row .v.acc{color:var(--acc)}
+.sim-row .v.gold{color:var(--gold)}
+.no-sim{
+  text-align:center;padding:10px 0;
+  font-size:.82rem;color:var(--mut);line-height:1.7;
+}
+.no-sim a{color:var(--acc);text-decoration:none}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--card2);border:1px solid var(--b2);
+  padding:9px 18px;border-radius:99px;
+  font-size:.8rem;color:var(--txt);
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;z-index:200;pointer-events:none;
+  max-width:calc(100vw - 32px);
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:rgba(0,229,176,.3);color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="logo">Sim<em>Préstamo</em></div>
+    <button class="back-btn" onclick="history.back()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Simulador
+    </button>
+  </header>
+
+  <!-- URL + COPIAR -->
+  <p class="slabel">Enlace del simulador</p>
+  <div class="url-card">
+    <span class="url-text" id="urlText">Cargando…</span>
+    <button class="copy-btn" id="copyBtn" onclick="copiarURL()">Copiar</button>
+  </div>
+
+  <!-- BOTONES DE COMPARTIR -->
+  <p class="slabel">Compartir por</p>
+  <div class="share-grid">
+
+    <!-- WHATSAPP -->
+    <button class="share-btn wa" onclick="shareWA()">
+      <span class="share-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+      </span>
+      <span class="share-lbl">WhatsApp</span>
+    </button>
+
+    <!-- EMAIL -->
+    <button class="share-btn email" onclick="shareEmail()">
+      <span class="share-icon">📧</span>
+      <span class="share-lbl">Correo</span>
+    </button>
+
+    <!-- SMS -->
+    <button class="share-btn sms" onclick="shareSMS()">
+      <span class="share-icon">💬</span>
+      <span class="share-lbl">SMS</span>
+    </button>
+
+    <!-- NATIVO (Web Share API) -->
+    <button class="share-btn native" onclick="shareNativo()" id="btnNativo">
+      <span class="share-icon">📤</span>
+      <span class="share-lbl">Más opciones</span>
+    </button>
+
+  </div>
+
+  <!-- SIMULACIÓN ACTIVA (opcional en mensaje) -->
+  <p class="slabel">Simulación activa</p>
+  <div class="sim-card" id="simCard">
+    <div class="no-sim">Sin simulación activa.<br><a href="index.html">← Volver al simulador</a></div>
+  </div>
+
+  <!-- QR -->
+  <p class="slabel">Código QR</p>
+  <div class="qr-card">
+    <div class="qr-title">Escanea para abrir</div>
+    <div class="qr-sub">Funciona sin instalar nada</div>
+    <div id="qrcode"></div>
+    <p class="qr-hint">Abre la cámara de tu celular<br>y apunta al código</p>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════
+   UTILS
+══════════════════════════════ */
+const gi = id => document.getElementById(id);
+let _tT;
+function toast(msg, tipo=''){
+  clearTimeout(_tT);
+  const el=gi('toast');
+  el.textContent=msg;
+  el.className='show'+(tipo?' '+tipo:'');
+  _tT=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function fmt(n){
+  return '$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* ══════════════════════════════
+   URL
+══════════════════════════════ */
+// Apuntar siempre al index.html del mismo origen
+const PAGE_URL = (() => {
+  const u = new URL(window.location.href);
+  u.pathname = u.pathname.replace('compartir.html','index.html');
+  return u.href;
+})();
+
+function initURL(){
+  gi('urlText').textContent = PAGE_URL;
+}
+
+function copiarURL(){
+  navigator.clipboard.writeText(PAGE_URL)
+    .then(()=>{
+      const btn = gi('copyBtn');
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('copied');
+      toast('Enlace copiado', 'ok');
+      setTimeout(()=>{ btn.textContent='Copiar'; btn.classList.remove('copied'); }, 2000);
+    })
+    .catch(()=>{
+      // Fallback para navegadores sin clipboard API
+      const ta = document.createElement('textarea');
+      ta.value = PAGE_URL;
+      ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      toast('Enlace copiado', 'ok');
+    });
+}
+
+/* ══════════════════════════════
+   SIMULACIÓN ACTIVA
+══════════════════════════════ */
+let calcData = null;
+
+function cargarSim(){
+  // Leer desde sessionStorage (guardado por index.html en pickD/pickC)
+  try{
+    const sel = JSON.parse(sessionStorage.getItem('sp_sel')||'{}');
+    const interesRaw = localStorage.getItem('simulador_interes');
+    if(sel.dias && sel.capital && interesRaw){
+      const ip_obj = JSON.parse(interesRaw);
+      const interes = ip_obj?.data || ip_obj;
+      const ip = interes[sel.dias];
+      if(ip !== undefined){
+        const it = sel.capital*(ip/100);
+        const tp = sel.capital+it;
+        calcData = { dias:sel.dias, capital:sel.capital, ip, it, tp, pd:tp/sel.dias };
+      }
+    }
+  }catch(e){}
+
+  const card = gi('simCard');
+  if(!calcData){
+    card.innerHTML='<div class="no-sim">Sin simulación activa.<br><a href="index.html">← Configura tu préstamo</a></div>';
+    return;
+  }
+  const {dias,capital,ip,it,tp,pd} = calcData;
+  card.innerHTML=`
+    <div class="sim-row"><span class="k">Capital</span><span class="v">${fmt(capital)}</span></div>
+    <div class="sim-row"><span class="k">Plazo</span><span class="v acc">${dias} días</span></div>
+    <div class="sim-row"><span class="k">Tasa</span><span class="v acc">${ip}%</span></div>
+    <div class="sim-row"><span class="k">Interés</span><span class="v gold">${fmt(it)}</span></div>
+    <div class="sim-row"><span class="k">Total a pagar</span><span class="v acc">${fmt(tp)}</span></div>
+    <div class="sim-row"><span class="k">Pago diario</span><span class="v">${fmt(pd)}</span></div>
+  `;
+}
+
+/* ══════════════════════════════
+   MENSAJE BASE
+══════════════════════════════ */
+function buildMsg(){
+  let msg = `💰 *SimPréstamo* — Simulador de préstamos\n`;
+  msg += `Calcula tu préstamo al instante:\n`;
+  msg += `👉 ${PAGE_URL}`;
+
+  if(calcData){
+    const {dias,capital,ip,tp,pd} = calcData;
+    msg += `\n\n📊 *Simulación de ejemplo:*`;
+    msg += `\n• Capital: ${fmt(capital)}`;
+    msg += `\n• Plazo: ${dias} días · Tasa: ${ip}%`;
+    msg += `\n• Total a pagar: ${fmt(tp)}`;
+    msg += `\n• Pago diario: ${fmt(pd)}`;
+  }
+  return msg;
+}
+
+/* ══════════════════════════════
+   COMPARTIR
+══════════════════════════════ */
+function shareWA(){
+  const msg = buildMsg();
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+function shareEmail(){
+  const subject = encodeURIComponent('SimPréstamo — Calcula tu préstamo');
+  const body    = encodeURIComponent(buildMsg().replace(/\*/g,''));
+  window.open(`mailto:?subject=${subject}&body=${body}`,'_blank');
+}
+
+function shareSMS(){
+  const msg = buildMsg().replace(/\*/g,'');
+  // sms: funciona en móviles
+  window.open(`sms:?body=${encodeURIComponent(msg)}`,'_blank');
+}
+
+async function shareNativo(){
+  if(!navigator.share){
+    toast('Tu navegador no soporta esta opción');
+    return;
+  }
+  try{
+    await navigator.share({
+      title: 'SimPréstamo',
+      text:  buildMsg().replace(/\*/g,''),
+      url:   PAGE_URL
+    });
+    toast('¡Compartido!', 'ok');
+  }catch(e){
+    if(e.name !== 'AbortError') toast('No se pudo compartir');
+  }
+}
+
+/* ══════════════════════════════
+   QR
+══════════════════════════════ */
+function generarQR(){
+  const el = gi('qrcode');
+  if(typeof QRCode === 'undefined'){
+    el.innerHTML='<p style="color:var(--mut);font-size:.8rem;padding:20px">QR no disponible offline</p>';
+    return;
+  }
+  try{
+    new QRCode(el,{
+      text: PAGE_URL,
+      width: 200, height: 200,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }catch(e){
+    el.innerHTML='<p style="color:var(--mut);font-size:.8rem;padding:20px">Error al generar QR</p>';
+  }
+}
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+initURL();
+cargarSim();
+generarQR();
+
+// Ocultar botón nativo si no está disponible
+if(!navigator.share){
+  gi('btnNativo').style.opacity='.4';
+  gi('btnNativo').title='No disponible en este navegador';
+}
+</script>
+</body>
+</html>
