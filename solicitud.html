@@ -53,6 +53,11 @@ body::before{
 .no-calc{text-align:center;padding:14px 0;font-size:.83rem;color:var(--mut);line-height:1.7}
 .no-calc a{color:var(--acc);text-decoration:none}
 
+/* BADGE CLIENTE */
+.cliente-badge{display:none;margin-top:10px;padding:8px 12px;background:rgba(0,229,176,.08);border:1px solid rgba(0,229,176,.2);border-radius:8px;font-size:.73rem;color:var(--acc);line-height:1.5}
+.cliente-badge.show{display:block}
+.cliente-badge strong{font-family:'Syne',sans-serif}
+
 /* SECTION LABEL */
 .slabel{font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:22px 0 10px}
 .slabel span{color:var(--red)}
@@ -101,6 +106,11 @@ body::before{
 
 .divider{height:1px;background:var(--b1);margin:0 0 16px}
 
+/* PROGRESO */
+.progress-bar{height:3px;background:var(--b2);border-radius:99px;margin-bottom:20px;overflow:hidden;display:none}
+.progress-bar.show{display:block}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--blue));width:0%;transition:width .4s ease}
+
 /* FAB */
 .fab-wrap{position:fixed;bottom:20px;left:0;right:0;max-width:430px;margin:0 auto;padding:0 16px;z-index:100}
 .fab{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px;background:#25D366;border:none;border-radius:99px;color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(37,211,102,.35),0 2px 8px rgba(0,0,0,.4);transition:transform .15s,box-shadow .15s,background .15s;position:relative;overflow:hidden}
@@ -139,6 +149,11 @@ body::before{
     </div>
   </header>
 
+  <!-- BARRA DE PROGRESO -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
   <!-- RESUMEN -->
   <div class="resumen" id="resumen">
     <div class="res-title">Tu simulación</div>
@@ -161,6 +176,7 @@ body::before{
       <input class="inp" type="text" id="nombre" placeholder="Ej: Juan Pérez García" autocomplete="name" inputmode="text">
       <div class="field-hint" id="hintNombre"></div>
     </div>
+
     <div class="field">
       <label for="telefono">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -174,6 +190,24 @@ body::before{
       </div>
       <div class="field-hint" id="hintTelefono"></div>
     </div>
+
+    <div class="field">
+      <label for="correo">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Correo electrónico <span class="opt">opcional</span>
+      </label>
+      <input class="inp" type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email" inputmode="email">
+      <div class="field-hint" id="hintCorreo"></div>
+    </div>
+  </div>
+
+  <!-- CLIENTE DETECTADO -->
+  <div class="cliente-badge" id="clienteBadge">
+    <strong>👤 Cliente registrado</strong><br>
+    <span id="clienteInfo"></span>
   </div>
 
   <!-- DATOS OPCIONALES -->
@@ -270,10 +304,10 @@ body::before{
 
 <script>
 /* ══════════════════════════════════════
-   CONFIG
+   CONFIG — misma URL que el Apps Script
 ══════════════════════════════════════ */
 const SHEET_ID        = '19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
-const ADMIN_SHEET     = 'Telefonoadmin';
+const ADMIN_SHEET     = 'TelefonoAdmin';
 const ADMIN_FALLBACK  = '5214422580524';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkI-t5xxEHZWWAjR1zMk7YYMVmESzno5xpA14yA2FE0edEc1QMwjJzFRztvrrI22zL6w/exec';
 
@@ -282,7 +316,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkI-t5xxEHZWWA
 ══════════════════════════════════════ */
 let adminPhone  = ADMIN_FALLBACK;
 let adminEmail  = '';
-let adminActivo = true;
 let calcData    = null;
 let fotoINE     = null;
 let fotoCDom    = null;
@@ -302,11 +335,17 @@ function toast(msg,tipo=''){
   const el=gi('toast');
   el.textContent=msg;
   el.className='show'+(tipo?' '+tipo:'');
-  _tT=setTimeout(()=>el.classList.remove('show'),3000);
+  _tT=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function setProgress(pct){
+  const bar=gi('progressBar'), fill=gi('progressFill');
+  if(pct>0){ bar.classList.add('show'); fill.style.width=pct+'%'; }
+  else { bar.classList.remove('show'); fill.style.width='0%'; }
 }
 
 /* ══════════════════════════════════════
-   CARGAR SIMULACIÓN
+   CARGAR SIMULACIÓN DESDE sessionStorage
 ══════════════════════════════════════ */
 function cargarSimulacion(){
   let raw=null;
@@ -353,8 +392,8 @@ function renderResumen(){
 }
 
 /* ══════════════════════════════════════
-   CARGAR CONTACTO ADMIN — pestaña Telefonoadmin
-   A2=Teléfono · B2=Email · C2=Activo
+   CARGAR TELÉFONO ADMIN desde pestaña TelefonoAdmin
+   columna A2 = teléfono, B2 = activo (TRUE/FALSE)
 ══════════════════════════════════════ */
 async function cargarAdminPhone(){
   try{
@@ -364,7 +403,6 @@ async function cargarAdminPhone(){
       const data=p?.data||p;
       if(data?.telefono) adminPhone=limpiarTelefono(data.telefono);
       if(data?.email)    adminEmail=data.email;
-      if(data?.activo!==undefined) adminActivo=data.activo;
     }
   }catch(e){}
   if(!navigator.onLine){ dot('off'); return; }
@@ -376,17 +414,12 @@ async function cargarAdminPhone(){
     const txt=await r.text();
     const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
     const rows=json.table?.rows||[];
-    const fila=rows[1]; // fila 2
+    const fila=rows[1]; // fila 2 (índice 1)
     const tel    = fila?.c?.[0]?.v;  // A2
-    const email  = fila?.c?.[1]?.v;  // B2
-    const activo = fila?.c?.[2]?.v;  // C2
-    if(tel){
-      adminPhone  = limpiarTelefono(String(tel));
-      adminEmail  = email ? String(email).trim() : '';
-      adminActivo = activo ? String(activo).trim().toLowerCase()==='activo' : true;
-      localStorage.setItem('simulador_admin',JSON.stringify({
-        data:{telefono:adminPhone,email:adminEmail,activo:adminActivo},ts:Date.now()
-      }));
+    const activo = fila?.c?.[1]?.v;  // B2 (TRUE/FALSE)
+    if(tel && String(activo).toUpperCase()==='TRUE'){
+      adminPhone=limpiarTelefono(String(tel));
+      localStorage.setItem('simulador_admin',JSON.stringify({data:{telefono:adminPhone},ts:Date.now()}));
     }
     dot('ok');
   }catch(e){ dot(navigator.onLine?'ok':'off'); }
@@ -400,45 +433,62 @@ function limpiarTelefono(tel){
 }
 
 /* ══════════════════════════════════════
-   REGISTRAR EN SIMULACIONES
-   Columnas: ID · Fecha/Hora · Nombre Cliente · Teléfono ·
-   Capital · Días · Interés% · Interés$ · Total a Prestar ·
-   Pago Diario · Latitud · Longitud · Dirección · Link Mapa ·
-   Foto INE · Foto Comprobante · Estado · Notas
+   ENVIAR AL APPS SCRIPT (registra en
+   Simulaciones + Clientes automáticamente)
+   
+   Campos exactos que espera el Apps Script:
+   nombre, telefono, correo,
+   capital, dias, interesPct(→interesPorc), interesM(→interesTotal),
+   total(→totalPrestar), pagoDiario,
+   latitud, longitud, direccion,
+   fotoINE, fotoComp(→fotoComprobante),
+   notas, fecha, estado
 ══════════════════════════════════════ */
-async function registrarSimulacion(nombre, telefono){
-  try{
-    const lat  = ubicacion?.lat ?? '';
-    const lng  = ubicacion?.lng ?? '';
-    const dir  = ubicacion?.dir ?? '';
-    const mapa = (lat&&lng) ? `https://maps.google.com/?q=${lat},${lng}` : '';
+async function registrarEnScript(nombre, telefono){
+  const correo = gi('correo').value.trim();
+  const nota   = gi('nota').value.trim();
 
-    const payload={
-      nombre,                          // C  Nombre Cliente
-      telefono,                        // D  Teléfono
-      capital:   calcData?.capital??'',// E  Capital
-      dias:      calcData?.dias??'',   // F  Días
-      interesPct:calcData?.ip??'',     // G  Interés %
-      interesM:  calcData?.it??'',     // H  Interés $
-      total:     calcData?.tp??'',     // I  Total a Prestar
-      pagoDiario:calcData?.pd??'',     // J  Pago Diario
-      latitud:   lat,                  // K  Latitud
-      longitud:  lng,                  // L  Longitud
-      direccion: dir,                  // M  Dirección
-      linkMapa:  mapa,                 // N  Link Mapa
-      fotoINE:   fotoINE??'',          // O  Foto INE
-      fotoComp:  fotoCDom??'',         // P  Foto Comprobante
-      estado:    'Nuevo',              // Q  Estado
-      notas:     gi('nota').value.trim()// R  Notas
-    };
-    await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
+  const payload = {
+    // Identificación del solicitante
+    nombre,
+    telefono,
+    correo,
+
+    // Datos de la simulación
+    capital:    calcData?.capital   ?? '',
+    dias:       calcData?.dias      ?? '',
+    interesPct: calcData?.ip        ?? '',   // → normalizado como interesPorc en script
+    interesM:   calcData?.it        ?? '',   // → normalizado como interesTotal en script
+    total:      calcData?.tp        ?? '',   // → normalizado como totalPrestar en script
+    pagoDiario: calcData?.pd        ?? '',
+
+    // Ubicación
+    latitud:    ubicacion?.lat      ?? '',
+    longitud:   ubicacion?.lng      ?? '',
+    direccion:  ubicacion?.dir      ?? '',
+
+    // Imágenes (base64 comprimidas)
+    fotoINE:    fotoINE             ?? '',
+    fotoComp:   fotoCDom            ?? '',   // → normalizado como fotoComprobante en script
+
+    // Metadata
+    notas:      nota,
+    fecha:      new Date().toLocaleString('es-MX'),
+    estado:     'Nuevo'
+  };
+
+  // El script detectará que nombre y telefono están completos → Estado: "Completo"
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors',           // Apps Script desplegado como webapp pública
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify(payload)
     });
-  }catch(e){
-    console.warn('registrarSimulacion error:',e);
+    return true;
+  } catch(e) {
+    console.warn('Error al enviar al Apps Script:', e);
+    return false;
   }
 }
 
@@ -448,43 +498,63 @@ async function registrarSimulacion(nombre, telefono){
 function construirMensaje(){
   const nombre   = gi('nombre').value.trim();
   const telefono = gi('telefono').value.trim();
+  const correo   = gi('correo').value.trim();
   const nota     = gi('nota').value.trim();
+  const ahora    = new Date().toLocaleString('es-MX',{dateStyle:'long',timeStyle:'short'});
 
-  let msg=`🔹 *Solicitud de Préstamo*\n`;
-  msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
-  msg+=`\n👤 *Datos del solicitante*\n`;
-  msg+=`• Nombre: ${nombre}\n`;
-  msg+=`• Teléfono: ${telefono}\n`;
+  let msg = `🏦 *SOLICITUD DE PRÉSTAMO*\n`;
+  msg    += `━━━━━━━━━━━━━━━━━━━━\n`;
+  msg    += `📅 ${ahora}\n`;
 
+  // ── CÁLCULO DEL PRÉSTAMO (siempre primero) ─────
   if(calcData){
     const{dias,capital,ip,it,tp,pd}=calcData;
-    msg+=`\n💰 *Detalles del préstamo*\n`;
-    msg+=`• Capital solicitado: ${fmt(capital)}\n`;
-    msg+=`• Plazo: ${dias} días\n`;
-    msg+=`• Tasa de interés: ${ip}%\n`;
-    msg+=`• Interés total: ${fmt(it)}\n`;
-    msg+=`• *Total a pagar: ${fmt(tp)}*\n`;
-    msg+=`• Pago diario: ${fmt(pd)}\n`;
+    msg += `\n💰 *CÁLCULO DEL PRÉSTAMO*\n`;
+    msg += `┌─────────────────────┐\n`;
+    msg += `│ Capital:   ${fmt(capital).padStart(12,' ')} │\n`;
+    msg += `│ Plazo:        ${String(dias+' días').padStart(9,' ')} │\n`;
+    msg += `│ Tasa:            ${String(ip+'%').padStart(6,' ')} │\n`;
+    msg += `│ Interés:   ${fmt(it).padStart(12,' ')} │\n`;
+    msg += `├─────────────────────┤\n`;
+    msg += `│ TOTAL:     ${fmt(tp).padStart(12,' ')} │\n`;
+    msg += `│ x día:     ${fmt(pd).padStart(12,' ')} │\n`;
+    msg += `└─────────────────────┘\n`;
+  } else {
+    msg += `\n⚠️ _Sin simulación adjunta_\n`;
   }
 
+  // ── DATOS DEL SOLICITANTE ──────────────────────
+  msg += `\n👤 *SOLICITANTE*\n`;
+  msg += `• Nombre: *${nombre}*\n`;
+  msg += `• Teléfono: ${telefono}\n`;
+  if(correo) msg += `• Correo: ${correo}\n`;
+
+  // ── DOCUMENTOS ────────────────────────────────
   const docs=[];
-  if(fotoINE)  docs.push('Identificación oficial ✓');
-  if(fotoCDom) docs.push('Comprobante de domicilio ✓');
-  if(docs.length){ msg+=`\n📄 *Documentos adjuntos*\n`; docs.forEach(d=>msg+=`• ${d}\n`); }
-
-  if(ubicacion){
-    msg+=`\n📍 *Ubicación*\n`;
-    msg+=`${ubicacion.dir}\n`;
-    msg+=`🗺️ https://maps.google.com/?q=${ubicacion.lat},${ubicacion.lng}\n`;
+  if(fotoINE)  docs.push('INE / Identificación ✅');
+  if(fotoCDom) docs.push('Comprobante de domicilio ✅');
+  if(docs.length){
+    msg += `\n📎 *DOCUMENTOS*\n`;
+    docs.forEach(d => msg += `• ${d}\n`);
   }
 
-  if(nota) msg+=`\n📝 *Nota*\n${nota}\n`;
-  msg+=`\n━━━━━━━━━━━━━━━━━━━━`;
+  // ── UBICACIÓN ─────────────────────────────────
+  if(ubicacion){
+    msg += `\n📍 *UBICACIÓN*\n`;
+    msg += `${ubicacion.dir}\n`;
+    msg += `🗺️ https://maps.google.com/?q=${ubicacion.lat},${ubicacion.lng}\n`;
+  }
+
+  // ── NOTA ──────────────────────────────────────
+  if(nota) msg += `\n📝 *NOTA*\n_${nota}_\n`;
+
+  msg += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `_Enviado desde SimPréstamo_`;
   return msg;
 }
 
 /* ══════════════════════════════════════
-   VALIDACIONES
+   VALIDACIONES EN TIEMPO REAL
 ══════════════════════════════════════ */
 function validarNombre(v){
   if(!v||v.trim().length<3) return 'Mínimo 3 caracteres';
@@ -496,8 +566,15 @@ function validarTelefono(v){
   if(!/^\d{10}$/.test(v)) return 'Debe tener exactamente 10 dígitos';
   return '';
 }
+function validarCorreo(v){
+  if(!v) return ''; // opcional
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Correo no válido';
+  return '';
+}
+
 function liveValidate(inputId,hintId,fn){
   const inp=gi(inputId), hint=gi(hintId);
+  if(!inp||!hint) return;
   inp.addEventListener('input',()=>{
     const err=fn(inp.value);
     if(!inp.value){ inp.className='inp'; hint.textContent=''; hint.className='field-hint'; }
@@ -523,6 +600,7 @@ async function compressImage(base64,maxW=1024,q=0.72){
     img.onerror=rej; img.src=base64;
   });
 }
+
 function setupFile(inputId,areaId,lblId,prevId,imgId,onDone){
   const input=gi(inputId),area=gi(areaId),lbl=gi(lblId),prev=gi(prevId),img=gi(imgId);
   input.addEventListener('change',async e=>{
@@ -534,7 +612,7 @@ function setupFile(inputId,areaId,lblId,prevId,imgId,onDone){
       const compressed=await compressImage(b64);
       onDone(compressed); img.src=compressed;
       prev.classList.add('show'); area.classList.remove('processing'); area.classList.add('has-file');
-      lbl.textContent='✓ Imagen cargada'; toast('Imagen lista','ok');
+      lbl.textContent='✓ Imagen cargada'; toast('Imagen lista ✓','ok');
     }catch(err){ area.classList.remove('processing'); lbl.textContent='Tomar foto o subir imagen'; toast('Error al cargar imagen','err'); }
   });
 }
@@ -558,7 +636,7 @@ function setupUbicacion(){
         ubicacion={lat,lng,dir};
         btn.classList.add('active'); txt.textContent='✓ Ubicación obtenida';
         info.textContent=`📍 ${dir}`; info.classList.add('show');
-        btn.disabled=false; toast('Ubicación capturada','ok');
+        btn.disabled=false; toast('Ubicación capturada ✓','ok');
       },
       ()=>{ btn.disabled=false; txt.textContent='Compartir mi ubicación'; toast('No se pudo obtener la ubicación','err'); },
       {timeout:10000,maximumAge:60000}
@@ -567,14 +645,24 @@ function setupUbicacion(){
 }
 
 /* ══════════════════════════════════════
-   ENVIAR
+   ENVIAR — flujo principal
+   1. Valida formulario
+   2. Registra en Sheets vía Apps Script
+      (crea/actualiza Simulaciones + Clientes)
+   3. Abre WhatsApp
 ══════════════════════════════════════ */
 async function enviar(){
   if(enviando) return;
+
   const nombre   = gi('nombre').value.trim();
   const telefono = gi('telefono').value.trim();
-  const errNombre=validarNombre(nombre);
-  const errTel   =validarTelefono(telefono);
+  const correo   = gi('correo').value.trim();
+
+  // Validación
+  const errNombre  = validarNombre(nombre);
+  const errTel     = validarTelefono(telefono);
+  const errCorreo  = validarCorreo(correo);
+
   if(errNombre){
     gi('nombre').className='inp error';
     gi('hintNombre').textContent=errNombre;
@@ -587,31 +675,35 @@ async function enviar(){
     gi('hintTelefono').className='field-hint err';
     gi('telefono').focus(); toast('Verifica tu teléfono','err'); return;
   }
-  enviando=true;
-  const fab=gi('fab'); fab.classList.add('sending'); fab.disabled=true;
-  try{
-    toast('Registrando solicitud…','ok');
-    await registrarSimulacion(nombre,telefono);
+  if(errCorreo){
+    gi('correo').className='inp error';
+    gi('hintCorreo').textContent=errCorreo;
+    gi('hintCorreo').className='field-hint err';
+    gi('correo').focus(); toast('Correo inválido','err'); return;
+  }
 
+  enviando=true;
+  const fab=gi('fab');
+  fab.classList.add('sending'); fab.disabled=true;
+
+  try{
+    // ── Paso 1: Registrar en Sheets ────────
+    setProgress(30);
+    toast('Registrando solicitud en base de datos…','ok');
+    await registrarEnScript(nombre, telefono);
+
+    // ── Paso 2: Construir y abrir WhatsApp ─
+    setProgress(70);
     const msg=construirMensaje();
     const waUrl=`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
-
-    // Notificación por correo al admin (si tiene email y está activo)
-    if(adminActivo && adminEmail){
-      const subject=encodeURIComponent('Nueva solicitud de préstamo — '+nombre);
-      const body=encodeURIComponent(msg.replace(/\*/g,''));
-      window.open(`mailto:${adminEmail}?subject=${subject}&body=${body}`,'_blank');
-      await new Promise(r=>setTimeout(r,400));
-    }
-
-    // Notificación por WhatsApp al admin
     toast('Abriendo WhatsApp…','ok');
-    await new Promise(r=>setTimeout(r,400));
+    await new Promise(r=>setTimeout(r,500));
     window.open(waUrl,'_blank');
 
-    // Regresar al simulador en 3 segundos
-    toast('✓ Solicitud enviada. Volviendo al simulador…','ok');
-    setTimeout(()=>{ window.location.href='index.html'; }, 3000);
+    // ── Paso 3: Limpiar y regresar ─────────
+    setProgress(100);
+    toast('✅ Solicitud enviada correctamente','ok');
+    setTimeout(()=>{ setProgress(0); window.location.href='index.html'; }, 3000);
 
   }finally{
     enviando=false; fab.classList.remove('sending'); fab.disabled=false;
@@ -625,12 +717,23 @@ function init(){
   dot(navigator.onLine?'ok':'off');
   cargarSimulacion();
   cargarAdminPhone();
+
+  // Validaciones en vivo
   liveValidate('nombre',  'hintNombre',  validarNombre);
   liveValidate('telefono','hintTelefono',validarTelefono);
+  liveValidate('correo',  'hintCorreo',  validarCorreo);
+
+  // Solo números en teléfono
   gi('telefono').addEventListener('keypress',e=>{ if(!/\d/.test(e.key)) e.preventDefault(); });
+
+  // Imágenes
   setupFile('fileINE', 'areaINE', 'lblINE', 'prevINE', 'imgINE', d=>fotoINE =d);
   setupFile('fileCDom','areaCDom','lblCDom','prevCDom','imgCDom',d=>fotoCDom=d);
+
+  // Ubicación
   setupUbicacion();
+
+  // Online/Offline
   window.addEventListener('online', ()=>{ dot('busy'); cargarAdminPhone(); });
   window.addEventListener('offline',()=>dot('off'));
 }
