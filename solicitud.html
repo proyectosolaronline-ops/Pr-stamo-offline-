@@ -505,9 +505,13 @@ function renderResumen(){
 }
 
 /* ══════════════════════════════════════
-   CARGAR TELÉFONO ADMIN
+   CARGAR DATOS ADMIN desde pestaña TelefonoAdmin
+   Columnas: A=IdAdmin B=NombreEmpresa C=TelefonoAdmin
+             D=Email   E=Activo        F=logoEmpresa
+   Fila 1 = encabezados, Fila 2 = datos (índice 1)
 ══════════════════════════════════════ */
 async function cargarAdminPhone(){
+  // Cargar caché primero para respuesta inmediata
   try{
     const cached=localStorage.getItem('simulador_admin');
     if(cached){
@@ -517,7 +521,9 @@ async function cargarAdminPhone(){
       if(data?.email)    adminEmail=data.email;
     }
   }catch(e){}
+
   if(!navigator.onLine){ dot('off'); return; }
+
   try{
     dot('busy');
     const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(ADMIN_SHEET)}`;
@@ -526,12 +532,24 @@ async function cargarAdminPhone(){
     const txt=await r.text();
     const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
     const rows=json.table?.rows||[];
-    const fila=rows[1];
-    const tel    = fila?.c?.[0]?.v;
-    const activo = fila?.c?.[1]?.v;
-    if(tel && String(activo).toUpperCase()==='TRUE'){
-      adminPhone=limpiarTelefono(String(tel));
-      localStorage.setItem('simulador_admin',JSON.stringify({data:{telefono:adminPhone},ts:Date.now()}));
+
+    // Buscar la primera fila con Activo=TRUE (columna E = índice 4)
+    for(let i=1; i<rows.length; i++){
+      const fila   = rows[i];
+      // A=0 IdAdmin, B=1 NombreEmpresa, C=2 TelefonoAdmin, D=3 Email, E=4 Activo, F=5 logoEmpresa
+      const tel    = fila?.c?.[2]?.v;   // C = TelefonoAdmin
+      const email  = fila?.c?.[3]?.v;   // D = Email
+      const activo = fila?.c?.[4]?.v;   // E = Activo
+
+      if(tel && String(activo).toUpperCase()==='TRUE'){
+        adminPhone = limpiarTelefono(String(tel));
+        adminEmail = email ? String(email).trim() : '';
+        localStorage.setItem('simulador_admin', JSON.stringify({
+          data:{ telefono: adminPhone, email: adminEmail },
+          ts: Date.now()
+        }));
+        break;
+      }
     }
     dot('ok');
   }catch(e){ dot(navigator.onLine?'ok':'off'); }
@@ -546,8 +564,17 @@ function limpiarTelefono(tel){
 
 /* ══════════════════════════════════════
    VERIFICAR CLIENTE EXISTENTE EN SHEETS
-   Busca por teléfono en pestaña Clientes
-   (usando gviz para lectura pública)
+   Pestaña: Clientes
+   Columnas:
+     A=0  IdCliente
+     B=1  Nombre Cliente
+     C=2  Telefono
+     D=3  Ubicacion
+     E=4  Correo
+     F=5  FotoIne
+     G=6  FotoComprobante
+     H=7  CantidadSimulaciones
+     I=8  Estado
 ══════════════════════════════════════ */
 async function verificarClienteExistente(telefono){
   if(!telefono || telefono.length < 10) return null;
@@ -566,9 +593,12 @@ async function verificarClienteExistente(telefono){
           idCliente:  row?.c?.[0]?.v || '',
           nombre:     row?.c?.[1]?.v || '',
           telefono:   row?.c?.[2]?.v || '',
-          correo:     row?.c?.[3]?.v || '',
-          totalSims:  row?.c?.[5]?.v || 0,
-          ultimaFecha:row?.c?.[7]?.v || ''
+          ubicacion:  row?.c?.[3]?.v || '',
+          correo:     row?.c?.[4]?.v || '',
+          fotoIne:    row?.c?.[5]?.v || '',
+          fotoComp:   row?.c?.[6]?.v || '',
+          totalSims:  row?.c?.[7]?.v || 0,
+          estado:     row?.c?.[8]?.v || ''
         };
       }
     }
@@ -749,7 +779,7 @@ function setupTelefonoConBusqueda(){
 
         // Mostrar badge de cliente existente
         badge.classList.add('show');
-        info.innerHTML = `ID: <strong>${cliente.idCliente}</strong> · ${cliente.totalSims} simulación(es)<br>Último: ${cliente.ultimaFecha || 'N/D'}`;
+        info.innerHTML = `ID: <strong>${cliente.idCliente}</strong> · ${cliente.totalSims} simulación(es)<br>Estado: ${cliente.estado || 'Activo'}`;
 
         // Autocompletar nombre si el campo está vacío
         const nombreInp = gi('nombre');
