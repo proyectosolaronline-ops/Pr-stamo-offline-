@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -224,10 +225,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 <div id="toast"></div>
 
 <script>
+// ¡CAMBIAR ESTA LÍNEA CON TU NUEVA URL DEL DEPLOYMENT!
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycRAJn1pgCeXQQUFbpzT2fQxj5vwgLbNgGB9XhB2NOYIZf7KdvFiRs3UaLRfA9Eb0ybQ/exec'; // ← REEMPLAZA POR LA NUEVA
+
 const SHEET_ID = '19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
 const ADMIN_SHEET = 'TelefonoAdmin';
 const ADMIN_FALLBACK = '5214422580524';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTYKxi2I4duW-pOuDgfCpiKF33Jvh-hW-EZT76mFpViYjgdDjqA5SCVt5YCkdfIpO-4w/exec'; // ← CAMBIA POR TU URL ACTUAL
 
 let adminPhone = ADMIN_FALLBACK;
 let adminEmail = '';
@@ -253,7 +256,7 @@ function toast(msg, tipo = '') {
   const el = gi('toast');
   el.textContent = msg;
   el.className = 'show' + (tipo ? ' ' + tipo : '');
-  _tT = setTimeout(() => el.classList.remove('show'), 3500);
+  _tT = setTimeout(() => el.classList.remove('show'), 4000);
 }
 
 function setProgress(pct) {
@@ -268,37 +271,16 @@ function setProgress(pct) {
   }
 }
 
-async function postScript(payload) {
-  try {
-    const resp = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!resp.ok) {
-      const errText = await resp.text();
-      throw new Error(`HTTP ${resp.status}: ${errText}`);
-    }
-
-    const json = await resp.json();
-    console.log('Respuesta Apps Script:', json);
-    return json;
-  } catch (e) {
-    console.error('Error postScript:', e);
-    throw e;
-  }
-}
-
+// Función para enviar al Apps Script
 async function registrarEnScript(nombre, telefono) {
   const correo = gi('correo').value.trim();
   const nota = gi('nota').value.trim();
-  if (correo) guardarCorreoLocal(correo);
+  if (correo) localStorage.setItem('sp_correo_usuario', correo);
 
   const payload = {
     nombre: nombre,
     telefono: telefono,
-    correo: correo,
+    correo: correo || '',
     capital: calcData?.capital ?? '',
     dias: calcData?.dias ?? '',
     interesPct: calcData?.ip ?? '',
@@ -309,29 +291,52 @@ async function registrarEnScript(nombre, telefono) {
     longitud: ubicacion?.lng ?? '',
     direccion: ubicacion?.dir ?? '',
     fotoINE: fotoINE ?? '',
-    fotoComprobante: fotoCDom ?? '',  // Nombre esperado por tu Apps Script
+    fotoComprobante: fotoCDom ?? '',
     notas: nota,
     fecha: new Date().toLocaleString('es-MX'),
     estado: 'Nuevo'
   };
 
+  console.log('[DEBUG] Enviando al script:', payload);
+
   try {
-    const json = await postScript(payload);
+    toast('Guardando solicitud...', 'info');
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    console.log('[DEBUG] Estado HTTP:', resp.status);
+
+    if (!resp.ok) {
+      let errText = await resp.text().catch(() => 'sin detalles');
+      throw new Error(`Error ${resp.status}: ${errText}`);
+    }
+
+    const json = await resp.json();
+    console.log('[DEBUG] Respuesta del script:', json);
+
     if (json.success === true) {
-      toast('✅ Registrado correctamente', 'ok');
+      toast('¡Registrado correctamente!', 'ok');
       return true;
     } else {
-      throw new Error(json.message || 'Fallo en el servidor');
+      throw new Error(json.message || 'El servidor rechazó la solicitud');
     }
   } catch (err) {
-    console.error('Fallo registro:', err);
-    toast('No se pudo registrar: ' + err.message, 'err');
+    console.error('[ERROR]', err);
+    toast('No se pudo guardar: ' + err.message, 'err');
     return false;
   }
 }
 
-// ... (mantén tus funciones existentes: detectarCorreoNavegador, guardarCorreoLocal, cargarSimulacion, renderResumen, cargarAdminPhone, limpiarTelefono, verificarClienteExistente, construirMensaje, validarNombre, validarTelefono, validarCorreo, liveValidate, setupTelefonoConBusqueda, compressImage, setupFile, setupUbicacion)
+// ... Aquí van tus otras funciones originales (manténlas iguales):
+// detectarCorreoNavegador, guardarCorreoLocal, cargarSimulacion, renderResumen,
+// cargarAdminPhone, limpiarTelefono, verificarClienteExistente, construirMensaje,
+// validarNombre, validarTelefono, validarCorreo, liveValidate,
+// setupTelefonoConBusqueda, compressImage, setupFile, setupUbicacion
 
+// Función enviar ajustada
 async function enviar() {
   if (enviando) return;
 
@@ -343,8 +348,8 @@ async function enviar() {
   const errTel = validarTelefono(telefono);
   const errCorreo = validarCorreo(correo);
 
-  if (errNombre) { gi('nombre').className = 'inp error'; gi('hintNombre').textContent = errNombre; gi('hintNombre').className = 'field-hint err'; gi('nombre').focus(); toast('Verifica tu nombre', 'err'); return; }
-  if (errTel) { gi('telefono').className = 'inp error'; gi('hintTelefono').textContent = errTel; gi('hintTelefono').className = 'field-hint err'; gi('telefono').focus(); toast('Verifica tu teléfono', 'err'); return; }
+  if (errNombre) { gi('nombre').className = 'inp error'; gi('hintNombre').textContent = errNombre; gi('hintNombre').className = 'field-hint err'; gi('nombre').focus(); toast('Verifica nombre', 'err'); return; }
+  if (errTel) { gi('telefono').className = 'inp error'; gi('hintTelefono').textContent = errTel; gi('hintTelefono').className = 'field-hint err'; gi('telefono').focus(); toast('Verifica teléfono', 'err'); return; }
   if (errCorreo) { gi('correo').className = 'inp error'; gi('hintCorreo').textContent = errCorreo; gi('hintCorreo').className = 'field-hint err'; gi('correo').focus(); toast('Correo inválido', 'err'); return; }
 
   enviando = true;
@@ -354,23 +359,21 @@ async function enviar() {
 
   try {
     setProgress(30);
-    toast('Registrando en base de datos…', 'ok');
-
     const registrado = await registrarEnScript(nombre, telefono);
+
     if (!registrado) {
-      throw new Error('Registro fallido');
+      throw new Error('No se guardó la solicitud');
     }
 
     setProgress(70);
     const msg = construirMensaje();
     const waUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
-    toast('Abriendo WhatsApp…', 'ok');
+    toast('Abriendo WhatsApp...', 'ok');
 
-    await new Promise(r => setTimeout(r, 800));
     window.open(waUrl, '_blank');
 
     setProgress(100);
-    toast('✅ Solicitud enviada y registrada', 'ok');
+    toast('¡Solicitud guardada y enviada!', 'ok');
 
     setTimeout(() => {
       setProgress(0);
@@ -396,7 +399,7 @@ function init() {
   liveValidate('correo', 'hintCorreo', validarCorreo);
   setupTelefonoConBusqueda();
 
-  gi('correo').addEventListener('blur', () => guardarCorreoLocal(gi('correo').value.trim()));
+  gi('correo').addEventListener('blur', () => localStorage.setItem('sp_correo_usuario', gi('correo').value.trim()));
   gi('telefono').addEventListener('keypress', e => { if (!/\d/.test(e.key)) e.preventDefault(); });
 
   setupFile('fileINE', 'areaINE', 'lblINE', 'prevINE', 'imgINE', d => fotoINE = d);
@@ -404,7 +407,7 @@ function init() {
 
   setupUbicacion();
 
-  gi('fab').addEventListener('click', enviar);
+  gi('fab').onclick = enviar;
 
   window.addEventListener('online', () => { dot('busy'); cargarAdminPhone(); });
   window.addEventListener('offline', () => dot('off'));
