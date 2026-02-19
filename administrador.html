@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Admin — SimPréstamo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b10;--surf:#0f1319;--card:#141a24;--card2:#19202e;--b1:#1c2535;--b2:#243047;--acc:#00e5b0;--acc2:#00b88d;--blue:#3b82f6;--gold:#f59e0b;--red:#f43f5e;--purple:#a855f7;--txt:#dce8f5;--mut:#4d617d;--soft:#7a92b0;--r:14px;--rs:9px;--mono:'DM Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(0,229,176,.06) 0%,transparent 60%),radial-gradient(ellipse 40% 50% at 10% 90%,rgba(59,130,246,.05) 0%,transparent 60%)}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:36px 32px;width:100%;max-width:360px;position:relative;overflow:hidden}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--blue))}
+.login-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-.03em;margin-bottom:6px}
+.login-logo em{color:var(--acc);font-style:normal}
+.login-sub{font-size:.78rem;color:var(--mut);margin-bottom:28px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:.75rem;color:var(--soft);margin-bottom:6px;font-weight:500}
+.inp{width:100%;background:var(--surf);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.92rem;padding:11px 14px;transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
+.inp::placeholder{color:var(--mut)}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,229,176,.1)}
+.inp.error{border-color:var(--red)}
+.btn-login{width:100%;padding:13px;background:var(--acc);border:none;border-radius:var(--rs);color:#080b10;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .15s,transform .1s;margin-top:6px}
+.btn-login:hover{background:var(--acc2);transform:translateY(-1px)}
+.btn-login:active{transform:scale(.98)}
+.login-err{font-size:.75rem;color:var(--red);margin-top:8px;min-height:1.2em;text-align:center}
+
+/* LAYOUT */
+#app{display:none;position:relative;z-index:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--card);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:100}
+.topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:-.03em}
+.topbar-logo em{color:var(--acc);font-style:normal}
+.topbar-logo span{font-size:.65rem;color:var(--mut);font-family:'DM Sans',sans-serif;font-weight:400;margin-left:8px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--mut);transition:background .4s}
+.sdot.ok{background:var(--acc)}.sdot.off{background:var(--gold)}.sdot.busy{background:var(--blue);animation:blink .9s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-logout{font-size:.72rem;color:var(--mut);background:none;border:1px solid var(--b2);border-radius:6px;padding:4px 10px;cursor:pointer;transition:color .2s,border-color .2s}
+.btn-logout:hover{color:var(--red);border-color:var(--red)}
+
+/* TABS */
+.tabs{display:flex;gap:2px;padding:14px 20px 0;background:var(--card);border-bottom:1px solid var(--b1)}
+.tab{padding:9px 18px;border-radius:var(--rs) var(--rs) 0 0;font-size:.78rem;font-weight:500;color:var(--mut);cursor:pointer;transition:color .2s,background .2s;border:none;background:none;font-family:'DM Sans',sans-serif;position:relative}
+.tab:hover{color:var(--soft)}
+.tab.on{color:var(--acc);background:var(--bg)}
+.tab.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--acc);border-radius:2px 2px 0 0}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:var(--b2);border-radius:99px;font-size:.6rem;font-weight:700;color:var(--soft);margin-left:6px;transition:background .3s,color .3s}
+.tab.on .badge{background:rgba(0,229,176,.15);color:var(--acc)}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;padding:14px 20px;flex-wrap:wrap}
+.search-inp{flex:1;min-width:180px;background:var(--surf);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.85rem;padding:8px 12px;outline:none}
+.search-inp:focus{border-color:var(--acc)}
+.search-inp::placeholder{color:var(--mut)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;transition:background .15s,transform .1s;border:none;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-acc{background:var(--acc);color:#080b10}
+.btn-acc:hover{background:var(--acc2)}
+.btn-b{background:var(--b2);color:var(--soft)}
+.btn-b:hover{background:var(--b1);color:var(--txt)}
+.btn-red{background:rgba(244,63,94,.15);color:var(--red);border:1px solid rgba(244,63,94,.3)}
+.btn-red:hover{background:rgba(244,63,94,.25)}
+.count-lbl{font-size:.72rem;color:var(--mut);margin-left:auto}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;padding:0 20px 20px}
+.tbl-msg{text-align:center;padding:48px 20px;color:var(--mut);font-size:.85rem;display:flex;flex-direction:column;align-items:center;gap:12px}
+.tbl-msg .ico{font-size:2rem}
+table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:700px}
+thead tr{background:var(--surf);position:sticky;top:0}
+th{padding:10px 12px;text-align:left;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);white-space:nowrap;border-bottom:1px solid var(--b2)}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--soft)}
+td{padding:9px 12px;border-bottom:1px solid var(--b1);vertical-align:middle;color:var(--txt)}
+tr:hover td{background:rgba(255,255,255,.02)}
+td.id{font-family:monospace;font-size:.68rem;color:var(--mut)}
+td.num{text-align:right;font-family:monospace;color:var(--acc);font-weight:500}
+td.name{font-weight:500}
+td.tel{font-family:monospace;font-size:.75rem}
+td.date{font-size:.72rem;color:var(--soft)}
+td.link a{color:var(--blue);text-decoration:none;font-size:.72rem}
+td.link a:hover{color:var(--acc)}
+td.actions{white-space:nowrap}
+.row-btn{padding:4px 10px;border-radius:6px;font-size:.7rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:background .15s}
+.row-btn.edit{background:rgba(59,130,246,.15);color:var(--blue)}
+.row-btn.edit:hover{background:rgba(59,130,246,.3)}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:.68rem;font-weight:600;white-space:nowrap}
+.pill-ok{background:rgba(0,229,176,.12);color:var(--acc)}
+.pill-warn{background:rgba(245,158,11,.12);color:var(--gold)}
+.pill-err{background:rgba(244,63,94,.12);color:var(--red)}
+.pill-blue{background:rgba(59,130,246,.12);color:var(--blue)}
+.pill-mut{background:var(--b2);color:var(--mut)}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:14px 20px}
+.stat{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.acc::before{background:var(--acc)}.stat.blue::before{background:var(--blue)}.stat.gold::before{background:var(--gold)}.stat.purple::before{background:var(--purple)}
+.stat-lbl{font-size:.62rem;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--txt);line-height:1}
+.stat-sub{font-size:.68rem;color:var(--soft);margin-top:4px}
+
+/* ADMIN CARDS */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:14px 20px 20px}
+.admin-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
+.admin-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--blue))}
+.admin-field{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--b1)}
+.admin-field:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.admin-key{font-size:.63rem;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;padding-top:2px;flex-shrink:0}
+.admin-val{font-size:.82rem;color:var(--txt);text-align:right;word-break:break-all}
+.admin-val.big{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--acc)}
+
+/* SPINNER */
+.spinner{width:28px;height:28px;border:2px solid var(--b2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(8,11,16,.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--b2);border-radius:var(--r);width:100%;max-width:520px;max-height:90dvh;overflow-y:auto;position:relative}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--blue));border-radius:var(--r) var(--r) 0 0}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0}
+.modal-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.modal-sub{font-size:.72rem;color:var(--mut)}
+.modal-close{background:none;border:none;color:var(--mut);font-size:1.2rem;cursor:pointer;padding:4px;line-height:1;transition:color .2s}
+.modal-close:hover{color:var(--txt)}
+.modal-body{padding:20px}
+.modal-note{font-size:.72rem;color:var(--blue);background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--rs);padding:8px 12px;margin-bottom:16px}
+.mfield{margin-bottom:14px}
+.mfield:last-child{margin-bottom:0}
+.mfield label{display:block;font-size:.72rem;color:var(--soft);margin-bottom:5px;font-weight:500}
+.mfield input,.mfield select,.mfield textarea{width:100%;background:var(--surf);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.88rem;padding:9px 12px;outline:none;transition:border-color .15s}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:var(--acc)}
+.mfield select{-webkit-appearance:none;cursor:pointer}
+.mfield textarea{resize:vertical;min-height:70px;line-height:1.5}
+.mfield input[readonly]{color:var(--mut);cursor:default}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:0 20px 20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.err-box{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:var(--rs);padding:10px 14px;font-size:.78rem;color:var(--red);margin:0 20px 14px}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--card2);border:1px solid var(--b2);padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:500;pointer-events:none;max-width:calc(100vw - 32px)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:rgba(0,229,176,.3);color:var(--acc)}
+#toast.err{border-color:rgba(244,63,94,.3);color:#ff6b8a}
+#toast.warn{border-color:rgba(245,158,11,.3);color:var(--gold)}
+
+/* PANEL VISIBILITY */
+.panel{display:none}.panel.active{display:block}
+
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}.topbar{padding:12px 14px}.toolbar{padding:10px 14px}.tbl-wrap{padding:0 14px 14px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Sim<em>Préstamo</em></div>
+    <div class="login-sub">Panel de Administración</div>
+    <div class="login-field">
+      <label>Contraseña de acceso</label>
+      <input class="inp" type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Ingresar al panel</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-logo">Sim<em>Préstamo</em> <span>Admin</span></div>
+    </div>
+    <div class="topbar-right">
+      <div class="sdot" id="sdot"></div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab sim on" onclick="setTab('sim')">Simulaciones <span class="badge" id="badgeSim">0</span></button>
+    <button class="tab cli" onclick="setTab('cli')">Clientes <span class="badge" id="badgeCli">0</span></button>
+    <button class="tab adm" onclick="setTab('adm')">Admin</button>
+  </div>
+
+  <!-- SIMULACIONES -->
+  <div id="panelSim" class="panel active">
+    <div class="stats-row" id="statsSim"></div>
+    <div class="toolbar">
+      <input class="search-inp" id="searchSim" placeholder="Buscar simulación…" oninput="filtrarSim()">
+      <button class="btn btn-acc" onclick="abrirSim(null)">+ Nueva</button>
+      <button class="btn btn-b" onclick="cargarSimulaciones()">↺ Recargar</button>
+      <span class="count-lbl" id="countSim"></span>
+    </div>
+    <div id="errSim"></div>
+    <div class="tbl-wrap"><div class="tbl-msg" id="tableSim"><div class="spinner"></div>Cargando…</div></div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div id="panelCli" class="panel">
+    <div class="stats-row" id="statsCli"></div>
+    <div class="toolbar">
+      <input class="search-inp" id="searchCli" placeholder="Buscar cliente…" oninput="filtrarCli()">
+      <button class="btn btn-acc" onclick="abrirCli(null)">+ Nuevo</button>
+      <button class="btn btn-b" onclick="cargarClientes()">↺ Recargar</button>
+      <span class="count-lbl" id="countCli"></span>
+    </div>
+    <div id="errCli"></div>
+    <div class="tbl-wrap"><div class="tbl-msg" id="tableCli"><div class="spinner"></div>Cargando…</div></div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="panelAdm" class="panel">
+    <div class="toolbar">
+      <button class="btn btn-acc" onclick="abrirAdm(null)">+ Nuevo admin</button>
+      <button class="btn btn-b" onclick="cargarAdmin()">↺ Recargar</button>
+    </div>
+    <div id="errAdm"></div>
+    <div class="admin-grid" id="adminGrid"><div class="tbl-msg"><div class="spinner"></div>Cargando…</div></div>
+  </div>
+</div>
+
+<!-- MODAL SIMULACION -->
+<div class="modal" id="mSim" onclick="cerrar('mSim',event)">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div><div class="modal-title">Simulación <span id="mSimSub" class="modal-sub"></span></div></div>
+      <button class="modal-close" onclick="cerrar('mSim')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-note" id="mSimNote" style="display:none"></div>
+      <div class="grid2">
+        <div class="mfield"><label>ID Simulación</label><input id="sID" readonly></div>
+        <div class="mfield"><label>ID Cliente</label><input id="sIdCli" placeholder="Auto"></div>
+      </div>
+      <div class="grid2">
+        <div class="mfield"><label>Fecha</label><input id="sFecha"></div>
+        <div class="mfield"><label>Estado</label>
+          <select id="sEstado">
+            <option value="Nuevo">Nuevo</option>
+            <option value="Completo">Completo</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="mfield"><label>Nombre cliente</label><input id="sNombre" placeholder="Nombre completo"></div>
+        <div class="mfield"><label>Teléfono</label><input id="sTel" placeholder="10 dígitos" maxlength="10"></div>
+      </div>
+      <div class="mfield"><label>Correo</label><input id="sCorreo" type="email" placeholder="correo@ejemplo.com"></div>
+      <div class="grid2">
+        <div class="mfield"><label>Capital ($)</label><input id="sCapital" type="number" placeholder="0.00"></div>
+        <div class="mfield"><label>Días</label><input id="sDias" type="number" placeholder="0"></div>
+      </div>
+      <div class="grid2">
+        <div class="mfield"><label>Tasa (%)</label><input id="sTasa" type="number" step="0.1" placeholder="0.0"></div>
+        <div class="mfield"><label>Interés ($)</label><input id="sInteresM" type="number" placeholder="0.00"></div>
+      </div>
+      <div class="grid2">
+        <div class="mfield"><label>Total a pagar ($)</label><input id="sTotal" type="number" placeholder="0.00"></div>
+        <div class="mfield"><label>Pago diario ($)</label><input id="sPagoDia" type="number" placeholder="0.00"></div>
+      </div>
+      <div class="grid2">
+        <div class="mfield"><label>Latitud</label><input id="sLat" placeholder="20.5888"></div>
+        <div class="mfield"><label>Longitud</label><input id="sLng" placeholder="-100.3899"></div>
+      </div>
+      <div class="mfield"><label>Dirección</label><input id="sDir" placeholder="Calle, Colonia, Ciudad"></div>
+      <div class="mfield"><label>Notas</label><textarea id="sNotas" placeholder="Observaciones…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-b" onclick="cerrar('mSim')">Cancelar</button>
+      <button class="btn btn-acc" onclick="guardarSim()">💾 Guardar en Sheets</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal" id="mCli" onclick="cerrar('mCli',event)">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div><div class="modal-title">Cliente <span id="mCliSub" class="modal-sub"></span></div></div>
+      <button class="modal-close" onclick="cerrar('mCli')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-note" id="mCliNote" style="display:none"></div>
+      <div class="grid2">
+        <div class="mfield"><label>ID Cliente</label><input id="cId" readonly></div>
+        <div class="mfield"><label>Estado</label>
+          <select id="cEstado">
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+            <option value="Bloqueado">Bloqueado</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="mfield"><label>Nombre completo</label><input id="cNombre" placeholder="Nombre"></div>
+        <div class="mfield"><label>Teléfono</label><input id="cTel" placeholder="10 dígitos" maxlength="10"></div>
+      </div>
+      <div class="mfield"><label>Correo</label><input id="cCorreo" type="email" placeholder="correo@ejemplo.com"></div>
+      <div class="mfield"><label>Ubicación</label><input id="cUbicacion" placeholder="Dirección completa"></div>
+      <div class="grid2">
+        <div class="mfield"><label>URL Foto INE</label><input id="cFotoIne" placeholder="https://…"></div>
+        <div class="mfield"><label>URL Comprobante</label><input id="cFotoComp" placeholder="https://…"></div>
+      </div>
+      <div class="mfield"><label>Cantidad de simulaciones</label><input id="cCantSims" type="number" placeholder="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-b" onclick="cerrar('mCli')">Cancelar</button>
+      <button class="btn btn-acc" onclick="guardarCli()">💾 Guardar en Sheets</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADMIN -->
+<div class="modal" id="mAdm" onclick="cerrar('mAdm',event)">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div><div class="modal-title">TelefonoAdmin <span id="mAdmSub" class="modal-sub"></span></div></div>
+      <button class="modal-close" onclick="cerrar('mAdm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid2">
+        <div class="mfield"><label>ID Admin</label><input id="aId" readonly></div>
+        <div class="mfield"><label>Activo</label>
+          <select id="aActivo">
+            <option value="TRUE">TRUE — Activo</option>
+            <option value="FALSE">FALSE — Inactivo</option>
+          </select>
+        </div>
+      </div>
+      <div class="mfield"><label>Nombre de empresa</label><input id="aEmpresa" placeholder="SimPréstamo…"></div>
+      <div class="mfield"><label>Teléfono Admin (10 dígitos)</label><input id="aTel" placeholder="4421234567" maxlength="10"></div>
+      <div class="mfield"><label>Email</label><input id="aEmail" type="email" placeholder="admin@empresa.com"></div>
+      <div class="mfield"><label>URL Logo</label><input id="aLogo" placeholder="https://…"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-b" onclick="cerrar('mAdm')">Cancelar</button>
+      <button class="btn btn-acc" onclick="guardarAdm()">💾 Guardar en Sheets</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════
+   CONFIG
+═══════════════════════════════════ */
+const SHEET_ID        = '19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkI-t5xxEHZWWAjR1zMk7YYMVmESzno5xpA14yA2FE0edEc1QMwjJzFRztvrrI22zL6w/exec';
+const ADMIN_PASSWORD  = 'admin2025'; // ← cambia esta contraseña
+
+/* ═══════════════════════════════════
+   ESTADO
+═══════════════════════════════════ */
+let dataSim=[],dataCli=[],filtSim=[],filtCli=[];
+let sortCol=null,sortDir=1,tabActual='sim';
+let _editSim=null,_editCli=null,_editAdm=null;
+let _adminRawRows=[];
+const ACOLS=['IdAdmin','NombreEmpresa','TelefonoAdmin','Email','Activo','logoEmpresa'];
+
+/* ═══════════════════════════════════
+   UTILS
+═══════════════════════════════════ */
+const gi=id=>document.getElementById(id);
+function dot(m){gi('sdot').className='sdot '+(m||'');}
+let _tT;
+function toast(msg,tipo=''){clearTimeout(_tT);const el=gi('toast');el.textContent=msg;el.className='show'+(tipo?' '+tipo:'');_tT=setTimeout(()=>el.classList.remove('show'),3400);}
+function fmt(n){if(n===''||n===null||n===undefined)return'—';return'$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function randStr(n){const c='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';return Array.from({length:n},()=>c[Math.floor(Math.random()*c.length)]).join('');}
+function pad(n){return String(n).padStart(2,'0');}
+function nowStr(){const d=new Date();return`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function genIDSim(){const d=new Date(),f=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`,h=`${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;return`SIM-${f}-${h}-${randStr(4)}`;}
+function genIDCli(){const d=new Date(),f=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;return`CLI-${f}-${randStr(6)}`;}
+function genIDAdm(){return`ADMIN-${randStr(4)}`;}
+
+/* ═══════════════════════════════════
+   LOGIN
+═══════════════════════════════════ */
+function doLogin(){
+  const pass=gi('loginPass').value;
+  if(pass===ADMIN_PASSWORD){
+    sessionStorage.setItem('adm_auth','1');
+    gi('loginScreen').style.display='none';
+    gi('app').style.display='block';
+    iniciarApp();
+  }else{
+    gi('loginErr').textContent='Contraseña incorrecta';
+    gi('loginPass').classList.add('error');
+    setTimeout(()=>{gi('loginErr').textContent='';gi('loginPass').classList.remove('error');},2000);
+  }
+}
+function logout(){sessionStorage.removeItem('adm_auth');location.reload();}
+
+/* ═══════════════════════════════════
+   MODAL
+═══════════════════════════════════ */
+function abrir(id){gi(id).classList.add('open');document.body.style.overflow='hidden';}
+function cerrar(id,ev){if(ev&&ev.target!==gi(id))return;gi(id).classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){['mSim','mCli','mAdm'].forEach(id=>gi(id).classList.remove('open'));document.body.style.overflow='';}});
+
+/* ═══════════════════════════════════
+   TABS
+═══════════════════════════════════ */
+function setTab(t){
+  tabActual=t;
+  ['sim','cli','adm'].forEach(x=>{
+    gi('panel'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('active',x===t);
+    document.querySelector('.tab.'+x).classList.toggle('on',x===t);
+  });
+}
+
+/* ═══════════════════════════════════
+   FETCH SHEETS (lectura pública)
+═══════════════════════════════════ */
+async function fetchSheet(nombre){
+  dot('busy');
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(nombre)}`;
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok)throw new Error(`HTTP ${r.status} al leer "${nombre}"`);
+  const txt=await r.text();
+  dot('ok');
+  return JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
+}
+function parsearTabla(json){
+  const cols=(json.table?.cols||[]).map(c=>c.label||c.id||'?');
+  const rows=(json.table?.rows||[]).map(row=>(row.c||[]).map(cell=>{
+    if(cell===null)return'';
+    return cell.f!==undefined&&cell.f!==null?cell.f:(cell.v!==undefined?cell.v:'');
+  }));
+  return{cols,rows};
+}
+
+/* ═══════════════════════════════════
+   POST AL APPS SCRIPT
+   Sin mode:no-cors — llega realmente
+═══════════════════════════════════ */
+async function postScript(payload){
+  try{
+    dot('busy');
+    const resp=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
+    const json=await resp.json();
+    dot('ok');
+    console.log('✅ Apps Script:',json);
+    return json;
+  }catch(e){
+    dot('ok');
+    console.warn('⚠️ postScript:',e);
+    toast('Error de conexión con Sheets','err');
+    return null;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SIMULACIONES
+═══════════════════════════════════════════════════ */
+async function cargarSimulaciones(){
+  gi('errSim').innerHTML='';
+  gi('tableSim').innerHTML='<div class="tbl-msg"><div class="spinner"></div>Cargando Simulaciones…</div>';
+  try{
+    const json=await fetchSheet('Simulaciones');
+    const{rows}=parsearTabla(json);
+    if(!rows.length){
+      gi('tableSim').innerHTML='<div class="tbl-msg"><span class="ico">📭</span>Sin simulaciones aún.</div>';
+      gi('badgeSim').textContent='0';gi('countSim').textContent='0 registros';
+      renderStatsSim([]);dataSim=[];filtSim=[];return;
+    }
+    dataSim=rows;filtSim=rows;
+    gi('badgeSim').textContent=rows.length;gi('searchSim').value='';
+    renderStatsSim(rows);renderTablaSim(rows);
+    toast(`✓ ${rows.length} simulaciones`,'ok');
+  }catch(e){
+    gi('tableSim').innerHTML='<div class="tbl-msg"><span class="ico">💥</span>Error al leer</div>';
+    gi('errSim').innerHTML=`<div class="err-box">❌ ${e.message}</div>`;
+    toast('Error Simulaciones','err');
+  }
+}
+
+function renderStatsSim(rows){
+  const total=rows.length,compl=rows.filter(r=>String(r[17]||'').includes('Completo')).length;
+  const caps=rows.map(r=>Number(r[5])||0).filter(n=>n>0),totalCap=caps.reduce((a,b)=>a+b,0);
+  const totalInt=rows.map(r=>Number(r[8])||0).reduce((a,b)=>a+b,0);
+  gi('statsSim').innerHTML=`
+    <div class="stat acc"><div class="stat-lbl">Total</div><div class="stat-val">${total}</div><div class="stat-sub">${compl} completas · ${total-compl} nuevas</div></div>
+    <div class="stat blue"><div class="stat-lbl">Capital total</div><div class="stat-val">${caps.length?fmt(totalCap):'—'}</div><div class="stat-sub">suma préstamos</div></div>
+    <div class="stat gold"><div class="stat-lbl">Interés generado</div><div class="stat-val">${caps.length?fmt(totalInt):'—'}</div><div class="stat-sub">suma intereses</div></div>
+    <div class="stat purple"><div class="stat-lbl">Prom. capital</div><div class="stat-val">${caps.length?fmt(totalCap/caps.length):'—'}</div><div class="stat-sub">por simulación</div></div>`;
+}
+
+function renderTablaSim(rows){
+  if(!rows.length){gi('tableSim').innerHTML='<div class="tbl-msg"><span class="ico">🔍</span>Sin resultados</div>';gi('countSim').textContent='0 registros';return;}
+  gi('countSim').textContent=rows.length+' registro'+(rows.length!==1?'s':'');
+  let html=`<table><thead><tr>
+    <th>Acción</th><th>#</th>
+    <th class="sortable" onclick="sortSim(0)">ID</th>
+    <th class="sortable" onclick="sortSim(2)">Fecha</th>
+    <th class="sortable" onclick="sortSim(3)">Nombre</th>
+    <th class="sortable" onclick="sortSim(4)">Teléfono</th>
+    <th class="sortable" onclick="sortSim(5)">Capital</th>
+    <th class="sortable" onclick="sortSim(6)">Días</th>
+    <th>Tasa%</th><th>Interés$</th>
+    <th class="sortable" onclick="sortSim(9)">Total</th>
+    <th>Pago/día</th><th>Estado</th><th>Notas</th><th>Mapa</th>
+  </tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    const idx=dataSim.indexOf(r);
+    const estado=String(r[17]||'');
+    const pillE=estado.includes('Completo')?`<span class="pill pill-ok">${estado.replace('✅ ','')}</span>`:estado.includes('Cancelado')?`<span class="pill pill-err">${estado.replace('❌ ','')}</span>`:`<span class="pill pill-warn">${estado.replace('⚠️ ','')||'Nuevo'}</span>`;
+    const mapa=r[14]?`<a href="${r[14]}" target="_blank">📍 Ver</a>`:'—';
+    const nota=r[18]?`<span title="${r[18]}">📝 ${String(r[18]).slice(0,20)}…</span>`:'—';
+    html+=`<tr>
+      <td class="actions"><button class="row-btn edit" onclick="abrirSim(${idx})">✏️ Editar</button></td>
+      <td class="id">${i+1}</td>
+      <td class="id">${r[0]||'—'}</td>
+      <td class="date">${r[2]||'—'}</td>
+      <td class="name">${r[3]||'—'}</td>
+      <td class="tel">${r[4]||'—'}</td>
+      <td class="num">${fmt(r[5])}</td>
+      <td class="num">${r[6]||'—'}</td>
+      <td class="num">${r[7]?r[7]+'%':'—'}</td>
+      <td class="num">${fmt(r[8])}</td>
+      <td class="num" style="color:var(--acc);font-weight:600">${fmt(r[9])}</td>
+      <td class="num">${fmt(r[10])}</td>
+      <td>${pillE}</td>
+      <td>${nota}</td>
+      <td class="link">${mapa}</td>
+    </tr>`;
+  });
+  gi('tableSim').innerHTML=html+'</tbody></table>';
+}
+
+function filtrarSim(){const q=gi('searchSim').value.toLowerCase().trim();filtSim=q?dataSim.filter(r=>r.some(c=>String(c).toLowerCase().includes(q))):dataSim;renderTablaSim(filtSim);}
+function sortSim(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}filtSim.sort((a,b)=>{const av=a[col]||'',bv=b[col]||'',an=Number(av),bn=Number(bv);if(!isNaN(an)&&!isNaN(bn))return(an-bn)*sortDir;return String(av).localeCompare(String(bv))*sortDir;});renderTablaSim(filtSim);}
+
+function abrirSim(idx){
+  _editSim=idx;
+  const esNuevo=idx===null;
+  gi('mSimSub').textContent=esNuevo?'— Nuevo':'— Editar';
+  const note=gi('mSimNote');
+  if(esNuevo){
+    ['sID','sIdCli','sFecha','sNombre','sTel','sCorreo','sCapital','sDias','sTasa','sInteresM','sTotal','sPagoDia','sLat','sLng','sDir','sNotas'].forEach(id=>gi(id).value='');
+    gi('sID').value=genIDSim();gi('sFecha').value=nowStr();gi('sEstado').value='Nuevo';
+    note.style.display='none';
+  }else{
+    const r=dataSim[idx];
+    gi('sID').value=r[0]||'';gi('sIdCli').value=r[1]||'';gi('sFecha').value=r[2]||'';
+    gi('sNombre').value=r[3]||'';gi('sTel').value=r[4]||'';gi('sCapital').value=r[5]||'';
+    gi('sDias').value=r[6]||'';gi('sTasa').value=r[7]||'';gi('sInteresM').value=r[8]||'';
+    gi('sTotal').value=r[9]||'';gi('sPagoDia').value=r[10]||'';
+    gi('sLat').value=r[11]||'';gi('sLng').value=r[12]||'';gi('sDir').value=r[13]||'';
+    gi('sEstado').value=(r[17]||'').replace('✅ ','').replace('⚠️ ','').replace('❌ ','').trim()||'Nuevo';
+    gi('sNotas').value=r[18]||'';gi('sCorreo').value=r[19]||'';
+    note.style.display='block';note.textContent=`Editando ID: ${r[0]}`;
+  }
+  abrir('mSim');
+}
+
+async function guardarSim(){
+  const nombre=gi('sNombre').value.trim(),telefono=gi('sTel').value.trim();
+  const total=gi('sTotal').value.trim(),pagoDia=gi('sPagoDia').value.trim();
+  if(!nombre){toast('El nombre es requerido','err');gi('sNombre').focus();return;}
+  if(!/^\d{10}$/.test(telefono)){toast('Teléfono: 10 dígitos','err');gi('sTel').focus();return;}
+  if(!total){toast('Total es requerido','err');gi('sTotal').focus();return;}
+  if(!pagoDia){toast('Pago diario es requerido','err');gi('sPagoDia').focus();return;}
+  const editId=_editSim!==null?(dataSim[_editSim]?.[0]||''):'';
+  const payload={
+    nombre,telefono,correo:gi('sCorreo').value.trim(),
+    capital:gi('sCapital').value||'',dias:gi('sDias').value||'',
+    interesPct:gi('sTasa').value||'',interesM:gi('sInteresM').value||'',
+    total,pagoDiario:pagoDia,
+    latitud:gi('sLat').value||'',longitud:gi('sLng').value||'',
+    direccion:gi('sDir').value||'',notas:gi('sNotas').value||'',
+    estado:gi('sEstado').value,fecha:gi('sFecha').value||nowStr(),
+    fotoINE:'',fotoComp:'',_debug_source:'admin_panel',
+    _edit_id:editId
+  };
+  toast('Guardando…');
+  const res=await postScript(payload);
+  cerrar('mSim');
+  if(res?.success){toast('✓ Guardado correctamente','ok');}
+  else{toast('⚠️ Revisa Apps Script → Ejecuciones','warn');}
+  setTimeout(()=>cargarSimulaciones(),2000);
+}
+
+/* ═══════════════════════════════════════════════════
+   CLIENTES
+═══════════════════════════════════════════════════ */
+async function cargarClientes(){
+  gi('errCli').innerHTML='';
+  gi('tableCli').innerHTML='<div class="tbl-msg"><div class="spinner"></div>Cargando Clientes…</div>';
+  try{
+    const json=await fetchSheet('Clientes');
+    const{rows}=parsearTabla(json);
+    if(!rows.length){
+      gi('tableCli').innerHTML='<div class="tbl-msg"><span class="ico">📭</span>Sin clientes aún.</div>';
+      gi('badgeCli').textContent='0';gi('countCli').textContent='0 registros';
+      renderStatsCli([]);dataCli=[];filtCli=[];return;
+    }
+    dataCli=rows;filtCli=rows;
+    gi('badgeCli').textContent=rows.length;gi('searchCli').value='';
+    renderStatsCli(rows);renderTablaCli(rows);
+    toast(`✓ ${rows.length} clientes`,'ok');
+  }catch(e){
+    gi('tableCli').innerHTML='<div class="tbl-msg"><span class="ico">💥</span>Error al leer</div>';
+    gi('errCli').innerHTML=`<div class="err-box">❌ ${e.message}</div>`;
+    toast('Error Clientes','err');
+  }
+}
+
+function renderStatsCli(rows){
+  const total=rows.length,activos=rows.filter(r=>String(r[8]||'').toLowerCase().includes('activo')).length;
+  const totalSims=rows.map(r=>Number(r[7])||0).reduce((a,b)=>a+b,0);
+  const conFoto=rows.filter(r=>r[5]&&String(r[5]).startsWith('http')).length;
+  gi('statsCli').innerHTML=`
+    <div class="stat blue"><div class="stat-lbl">Total clientes</div><div class="stat-val">${total}</div><div class="stat-sub">${activos} activos</div></div>
+    <div class="stat acc"><div class="stat-lbl">Simulaciones</div><div class="stat-val">${totalSims}</div><div class="stat-sub">entre todos</div></div>
+    <div class="stat gold"><div class="stat-lbl">Con foto INE</div><div class="stat-val">${conFoto}</div><div class="stat-sub">${total?Math.round(conFoto/total*100):0}%</div></div>
+    <div class="stat purple"><div class="stat-lbl">Prom. sims</div><div class="stat-val">${total?(totalSims/total).toFixed(1):'—'}</div><div class="stat-sub">por cliente</div></div>`;
+}
+
+function renderTablaCli(rows){
+  if(!rows.length){gi('tableCli').innerHTML='<div class="tbl-msg"><span class="ico">🔍</span>Sin resultados</div>';gi('countCli').textContent='0 registros';return;}
+  gi('countCli').textContent=rows.length+' registro'+(rows.length!==1?'s':'');
+  let html=`<table><thead><tr>
+    <th>Acción</th><th>#</th>
+    <th class="sortable" onclick="sortCli(0)">ID Cliente</th>
+    <th class="sortable" onclick="sortCli(1)">Nombre</th>
+    <th class="sortable" onclick="sortCli(2)">Teléfono</th>
+    <th>Correo</th><th>Ubicación</th>
+    <th class="sortable" onclick="sortCli(7)">Sims</th>
+    <th class="sortable" onclick="sortCli(8)">Estado</th>
+  </tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    const idx=dataCli.indexOf(r);
+    const estado=String(r[8]||'');
+    const pillE=estado.toLowerCase().includes('activo')?`<span class="pill pill-ok">${estado.replace('✅ ','')}</span>`:estado?`<span class="pill pill-err">${estado.replace('❌ ','')}</span>`:'—';
+    const ubi=r[3]?`<span title="${r[3]}">📍 ${String(r[3]).slice(0,22)}…</span>`:'—';
+    html+=`<tr>
+      <td class="actions"><button class="row-btn edit" onclick="abrirCli(${idx})">✏️ Editar</button></td>
+      <td class="id">${i+1}</td>
+      <td class="id">${r[0]||'—'}</td>
+      <td class="name">${r[1]||'—'}</td>
+      <td class="tel">${r[2]||'—'}</td>
+      <td style="font-size:.72rem">${r[4]||'—'}</td>
+      <td style="font-size:.72rem">${ubi}</td>
+      <td style="text-align:center"><span class="pill ${Number(r[7])>0?'pill-blue':'pill-mut'}">${r[7]||0}</span></td>
+      <td>${pillE}</td>
+    </tr>`;
+  });
+  gi('tableCli').innerHTML=html+'</tbody></table>';
+}
+
+function filtrarCli(){const q=gi('searchCli').value.toLowerCase().trim();filtCli=q?dataCli.filter(r=>r.some(c=>String(c).toLowerCase().includes(q))):dataCli;renderTablaCli(filtCli);}
+function sortCli(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}filtCli.sort((a,b)=>{const av=a[col]||'',bv=b[col]||'',an=Number(av),bn=Number(bv);if(!isNaN(an)&&!isNaN(bn))return(an-bn)*sortDir;return String(av).localeCompare(String(bv))*sortDir;});renderTablaCli(filtCli);}
+
+function abrirCli(idx){
+  _editCli=idx;
+  const esNuevo=idx===null;
+  gi('mCliSub').textContent=esNuevo?'— Nuevo':'— Editar';
+  const note=gi('mCliNote');
+  if(esNuevo){
+    ['cId','cNombre','cTel','cCorreo','cUbicacion','cFotoIne','cFotoComp'].forEach(id=>gi(id).value='');
+    gi('cId').value=genIDCli();gi('cCantSims').value='0';gi('cEstado').value='Activo';
+    note.style.display='none';
+  }else{
+    const r=dataCli[idx];
+    gi('cId').value=r[0]||'';gi('cNombre').value=r[1]||'';gi('cTel').value=r[2]||'';
+    gi('cUbicacion').value=r[3]||'';gi('cCorreo').value=r[4]||'';
+    gi('cFotoIne').value=r[5]||'';gi('cFotoComp').value=r[6]||'';
+    gi('cCantSims').value=r[7]||'0';
+    gi('cEstado').value=(r[8]||'').replace('✅ ','').replace('❌ ','').trim()||'Activo';
+    note.style.display='block';note.textContent=`Editando cliente ID: ${r[0]}`;
+  }
+  abrir('mCli');
+}
+
+async function guardarCli(){
+  const nombre=gi('cNombre').value.trim(),telefono=gi('cTel').value.trim();
+  if(!nombre){toast('Nombre requerido','err');gi('cNombre').focus();return;}
+  if(!/^\d{10}$/.test(telefono)){toast('Teléfono: 10 dígitos','err');gi('cTel').focus();return;}
+  const payload={
+    _accion:'upsert_cliente',
+    idCliente:gi('cId').value,nombre,telefono,
+    correo:gi('cCorreo').value.trim(),ubicacion:gi('cUbicacion').value.trim(),
+    fotoIne:gi('cFotoIne').value.trim(),fotoComp:gi('cFotoComp').value.trim(),
+    cantidadSimulaciones:gi('cCantSims').value||'0',
+    estado:gi('cEstado').value,_debug_source:'admin_panel'
+  };
+  toast('Guardando…');
+  const res=await postScript(payload);
+  cerrar('mCli');
+  if(res?.success){toast('✓ Cliente guardado','ok');}
+  else{toast('⚠️ Revisa Apps Script → Ejecuciones','warn');}
+  setTimeout(()=>cargarClientes(),2000);
+}
+
+/* ═══════════════════════════════════════════════════
+   ADMIN
+═══════════════════════════════════════════════════ */
+async function cargarAdmin(){
+  gi('errAdm').innerHTML='';
+  gi('adminGrid').innerHTML='<div class="tbl-msg"><div class="spinner"></div>Cargando TelefonoAdmin…</div>';
+  try{
+    const json=await fetchSheet('TelefonoAdmin');
+    const headers=(json.table?.cols||[]).map(c=>(c.label||c.id||'').trim()).filter(Boolean);
+    const rawRows=json.table?.rows||[];
+    _adminRawRows=rawRows;
+    if(!rawRows.length){gi('adminGrid').innerHTML='<div class="tbl-msg"><span class="ico">📭</span>TelefonoAdmin vacía.</div>';return;}
+    const labels=headers.length>=3?headers:ACOLS;
+    let html='';
+    rawRows.forEach((row,rowIdx)=>{
+      const vals=(row.c||[]).map(cell=>{if(!cell)return'';return cell.f!==undefined&&cell.f!==null?cell.f:(cell.v!==undefined&&cell.v!==null?String(cell.v):'');});
+      const get=n=>{const i=ACOLS.findIndex(c=>c.toLowerCase()===n.toLowerCase());const i2=labels.findIndex(l=>l.toLowerCase().includes(n.toLowerCase()));const idx=i>=0?i:i2;return idx>=0?(vals[idx]||''):'';};
+      const idAdmin=get('IdAdmin')||vals[0]||'—';
+      const empresa=get('NombreEmpresa')||vals[1]||'—';
+      const telefono=get('TelefonoAdmin')||vals[2]||'—';
+      const email=get('Email')||vals[3]||'—';
+      const activoRaw=get('Activo')||vals[4]||'';
+      const logo=get('logoEmpresa')||vals[5]||'';
+      const activo=String(activoRaw).toUpperCase()==='TRUE'||String(activoRaw)==='1';
+      const pill=activo?`<span class="pill pill-ok">✓ Activo</span>`:`<span class="pill pill-err">✗ Inactivo</span>`;
+      const logoHtml=logo?`<a href="${logo}" target="_blank" style="color:var(--blue)">Ver logo 🖼️</a>`:'—';
+      html+=`<div class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <span class="pill pill-mut" style="font-size:.6rem">Fila ${rowIdx+2}</span>
+          <div style="display:flex;gap:8px;align-items:center">${pill}<button class="row-btn edit" onclick="abrirAdm(${rowIdx})">✏️ Editar</button></div>
+        </div>
+        <div class="admin-field"><div class="admin-key">IdAdmin</div><div class="admin-val" style="font-size:.72rem">${idAdmin}</div></div>
+        <div class="admin-field"><div class="admin-key">NombreEmpresa</div><div class="admin-val big">${empresa}</div></div>
+        <div class="admin-field"><div class="admin-key">TelefonoAdmin</div><div class="admin-val" style="color:var(--acc)">${telefono}</div></div>
+        <div class="admin-field"><div class="admin-key">Email</div><div class="admin-val" style="font-size:.75rem">${email}</div></div>
+        <div class="admin-field"><div class="admin-key">logoEmpresa</div><div class="admin-val">${logoHtml}</div></div>
+      </div>`;
+    });
+    gi('adminGrid').innerHTML=html;
+    toast(`✓ TelefonoAdmin cargado`,'ok');
+  }catch(e){
+    gi('adminGrid').innerHTML='<div class="tbl-msg"><span class="ico">💥</span>Error al leer</div>';
+    gi('errAdm').innerHTML=`<div class="err-box">❌ ${e.message}</div>`;
+    toast('Error TelefonoAdmin','err');
+  }
+}
+
+function abrirAdm(rowIdx){
+  _editAdm=rowIdx;
+  const esNuevo=rowIdx===null;
+  gi('mAdmSub').textContent=esNuevo?'— Nuevo':'— Editar';
+  if(esNuevo){
+    ['aId','aEmpresa','aTel','aEmail','aLogo'].forEach(id=>gi(id).value='');
+    gi('aId').value=genIDAdm();gi('aActivo').value='TRUE';
+  }else{
+    const row=_adminRawRows[rowIdx];
+    if(!row){toast('Fila no encontrada','err');return;}
+    const vals=(row.c||[]).map(cell=>{if(!cell)return'';return cell.f!==undefined&&cell.f!==null?cell.f:(cell.v!==undefined&&cell.v!==null?String(cell.v):'');});
+    gi('aId').value=vals[0]||'';gi('aEmpresa').value=vals[1]||'';
+    gi('aTel').value=vals[2]||'';gi('aEmail').value=vals[3]||'';
+    gi('aActivo').value=String(vals[4]||'').toUpperCase()==='TRUE'?'TRUE':'FALSE';
+    gi('aLogo').value=vals[5]||'';
+  }
+  abrir('mAdm');
+}
+
+async function guardarAdm(){
+  const empresa=gi('aEmpresa').value.trim(),telefono=gi('aTel').value.trim();
+  if(!empresa){toast('NombreEmpresa requerido','err');gi('aEmpresa').focus();return;}
+  if(!telefono){toast('TelefonoAdmin requerido','err');gi('aTel').focus();return;}
+  const payload={
+    _accion:'upsert_admin',
+    idAdmin:gi('aId').value,nombreEmpresa:empresa,telefonoAdmin:telefono,
+    email:gi('aEmail').value.trim(),activo:gi('aActivo').value,
+    logoEmpresa:gi('aLogo').value.trim(),_debug_source:'admin_panel'
+  };
+  toast('Guardando…');
+  const res=await postScript(payload);
+  cerrar('mAdm');
+  if(res?.success){toast('✓ Admin guardado','ok');}
+  else{toast('⚠️ Revisa Apps Script → Ejecuciones','warn');}
+  setTimeout(()=>cargarAdmin(),2000);
+}
+
+/* ═══════════════════════════════════
+   INIT
+═══════════════════════════════════ */
+async function iniciarApp(){
+  dot(navigator.onLine?'ok':'off');
+  await Promise.all([cargarSimulaciones(),cargarClientes(),cargarAdmin()]);
+  window.addEventListener('online',()=>dot('ok'));
+  window.addEventListener('offline',()=>dot('off'));
+}
+
+// Verificar sesión al cargar
+if(sessionStorage.getItem('adm_auth')==='1'){
+  gi('loginScreen').style.display='none';
+  gi('app').style.display='block';
+  iniciarApp();
+}
+</script>
+</body>
+</html>
