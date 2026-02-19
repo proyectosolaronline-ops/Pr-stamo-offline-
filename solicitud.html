@@ -211,7 +211,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 const SHEET_ID='19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
 const ADMIN_SHEET='TelefonoAdmin';
 const ADMIN_FALLBACK='5214422580524';
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwkI-t5xxEHZWWAjR1zMk7YYMVmESzno5xpA14yA2FE0edEc1QMwjJzFRztvrrI22zL6w/exec';
+
+// ══════════════════════════════════════════════════════════════
+// ✅ CORRECCIÓN PRINCIPAL: USA LA URL CORRECTA DE TU WEB APP
+//    Ve a Apps Script → Implementar → Administrar implementaciones
+//    y copia la URL de tu implementación activa aquí:
+// ══════════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw83md07bzx1UmGRn51i-pRiuvQaEig_mUWS4VjvO0yTIlDCULqT8p3NGsSe2S4nZhzjA/exec';
 let adminPhone=ADMIN_FALLBACK,adminEmail='',calcData=null,fotoINE=null,fotoCDom=null,ubicacion=null,enviando=false;
 const gi=id=>document.getElementById(id);
 function fmt(n){return'$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -220,19 +226,32 @@ let _tT;
 function toast(msg,tipo=''){clearTimeout(_tT);const el=gi('toast');el.textContent=msg;el.className='show'+(tipo?' '+tipo:'');_tT=setTimeout(()=>el.classList.remove('show'),3500);}
 function setProgress(pct){const bar=gi('progressBar'),fill=gi('progressFill');if(pct>0){bar.classList.add('show');fill.style.width=pct+'%';}else{bar.classList.remove('show');fill.style.width='0%';}}
 
-// ─── CORRECCIÓN 1: postScript con Content-Type para que doPost reciba el body ───
+// ══════════════════════════════════════════════════════════════
+// ✅ FIX CORS: Enviar como text/plain (no dispara preflight)
+//    Apps Script recibe el JSON en e.postData.contents igual
+// ══════════════════════════════════════════════════════════════
 async function postScript(payload){
   try{
-    const resp=await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},   // ← CORRECCIÓN CLAVE
-      body:JSON.stringify(payload)
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      // ⚠️ NO usar 'Content-Type: application/json' — causa error CORS preflight
+      // text/plain no dispara preflight y Apps Script lee el body igual
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow'  // Apps Script redirige, necesitamos seguir el redirect
     });
-    const json=await resp.json();
-    console.log('✅ Apps Script:',json);
-    return json;
-  }catch(e){
-    console.warn('⚠️ postScript error:',e);
+    const text = await resp.text();
+    // Apps Script a veces devuelve texto con redirect, intentar parsear
+    try {
+      const json = JSON.parse(text);
+      console.log('✅ Apps Script response:', json);
+      return json;
+    } catch(e) {
+      console.warn('⚠️ Respuesta no es JSON:', text);
+      return { success: false, message: 'Respuesta inesperada del servidor' };
+    }
+  }catch(err){
+    console.warn('⚠️ postScript network error:', err.message);
     return null;
   }
 }
@@ -288,7 +307,6 @@ async function verificarClienteExistente(telefono){
   return null;
 }
 
-// ─── CORRECCIÓN 2: registrarEnScript usa los nombres exactos que espera doPost ───
 async function registrarEnScript(nombre,telefono){
   const correo=gi('correo').value.trim(),nota=gi('nota').value.trim();
   if(correo)guardarCorreoLocal(correo);
@@ -298,20 +316,22 @@ async function registrarEnScript(nombre,telefono){
     correo,
     capital:    calcData?.capital    ?? '',
     dias:       calcData?.dias       ?? '',
-    interesPct: calcData?.ip         ?? '',   // doPost normaliza interesPct → interesPorc
-    interesM:   calcData?.it         ?? '',   // doPost normaliza interesM   → interesTotal
-    total:      calcData?.tp         ?? '',   // doPost normaliza total      → totalPrestar
-    pagoDiario: calcData?.pd         ?? '',   // campo requerido por doPost
+    interesPct: calcData?.ip         ?? '',
+    interesM:   calcData?.it         ?? '',
+    total:      calcData?.tp         ?? '',
+    pagoDiario: calcData?.pd         ?? '',
     latitud:    ubicacion?.lat       ?? '',
     longitud:   ubicacion?.lng       ?? '',
     direccion:  ubicacion?.dir       ?? '',
-    fotoINE:    fotoINE              ?? '',   // doPost lo busca como datos.fotoINE
-    fotoComprobante: fotoCDom        ?? '',   // doPost lo busca como datos.fotoComprobante
+    fotoINE:    fotoINE              ?? '',
+    fotoComprobante: fotoCDom        ?? '',
     notas:      nota,
     fecha:      new Date().toLocaleString('es-MX'),
     estado:     'Nuevo'
   };
+  console.log('📤 Enviando a Apps Script:', { ...payload, fotoINE: payload.fotoINE ? '[base64...]' : '', fotoComprobante: payload.fotoComprobante ? '[base64...]' : '' });
   const res=await postScript(payload);
+  console.log('📥 Respuesta Apps Script:', res);
   return res?.success===true;
 }
 
@@ -360,7 +380,6 @@ async function compressImage(base64,maxW=1024,q=0.72){return new Promise((res,re
 function setupFile(inputId,areaId,lblId,prevId,imgId,onDone){const input=gi(inputId),area=gi(areaId),lbl=gi(lblId),prev=gi(prevId),img=gi(imgId);input.addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;if(file.size>5*1024*1024){toast('Imagen muy grande (máx. 5 MB)','err');return;}area.classList.add('processing');lbl.textContent='Procesando…';try{const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});const compressed=await compressImage(b64);onDone(compressed);img.src=compressed;prev.classList.add('show');area.classList.remove('processing');area.classList.add('has-file');lbl.textContent='✓ Imagen cargada';toast('Imagen lista ✓','ok');}catch(err){area.classList.remove('processing');lbl.textContent='Tomar foto o subir imagen';toast('Error al cargar imagen','err');}});}
 function setupUbicacion(){const btn=gi('btnLoc'),txt=gi('locTxt'),info=gi('locInfo');btn.addEventListener('click',()=>{if(!navigator.geolocation){toast('Tu navegador no soporta geolocalización','err');return;}btn.disabled=true;txt.textContent='Obteniendo…';navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude;let dir=`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);const d=await r.json();dir=d.display_name||dir;}catch(_){}ubicacion={lat,lng,dir};btn.classList.add('active');txt.textContent='✓ Ubicación obtenida';info.textContent=`📍 ${dir}`;info.classList.add('show');btn.disabled=false;toast('Ubicación capturada ✓','ok');},()=>{btn.disabled=false;txt.textContent='Compartir mi ubicación';toast('No se pudo obtener la ubicación','err');},{timeout:10000,maximumAge:60000});});}
 
-// ─── CORRECCIÓN 3: enviar() — primero registra en Sheet, luego abre WhatsApp ───
 async function enviar(){
   if(enviando)return;
   const nombre=gi('nombre').value.trim(),telefono=gi('telefono').value.trim(),correo=gi('correo').value.trim();
@@ -375,34 +394,39 @@ async function enviar(){
   fab.disabled=true;
 
   try{
-    setProgress(30);
-    toast('Registrando solicitud…','ok');
+    setProgress(20);
+    toast('Registrando solicitud…');
 
-    // Primero registra en Google Sheets
-    const registrado=await registrarEnScript(nombre,telefono);
-
-    if(!registrado){
-      // Si falla el registro, avisa pero igual abre WhatsApp
-      toast('Aviso: no se guardó en la base, pero se enviará por WhatsApp','err');
-      console.warn('El registro en Sheet falló, continuando con WhatsApp');
-    } else {
-      toast('✅ Guardado en base de datos','ok');
+    // Registrar en Google Sheets vía Apps Script
+    let registrado = false;
+    try {
+      setProgress(40);
+      registrado = await registrarEnScript(nombre, telefono);
+    } catch(regErr) {
+      console.error('Error registrando:', regErr);
     }
 
-    setProgress(70);
+    if(registrado){
+      toast('✅ Guardado en base de datos','ok');
+    } else {
+      // No bloquear — igual abrimos WhatsApp
+      toast('⚠️ No se guardó en BD, pero se enviará por WhatsApp');
+      console.warn('registrarEnScript retornó false o null');
+    }
+
+    setProgress(75);
     const msg=construirMensaje();
     const waUrl=`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
 
-    toast('Abriendo WhatsApp…','ok');
-    await new Promise(r=>setTimeout(r,500));
+    await new Promise(r=>setTimeout(r,600));
     window.open(waUrl,'_blank');
 
     setProgress(100);
     toast('✅ Solicitud enviada correctamente','ok');
-    setTimeout(()=>{setProgress(0);window.location.href='index.html';},3000);
+    setTimeout(()=>{setProgress(0);window.location.href='index.html';},3200);
 
   }catch(e){
-    console.error('Error en enviar:',e);
+    console.error('Error en enviar():', e);
     toast('Error: '+e.message,'err');
   }finally{
     enviando=false;
