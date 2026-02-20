@@ -7,90 +7,117 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080b10;--surf:#0f1319;--card:#141a24;--card2:#19202e;--b1:#1c2535;--b2:#243047;--acc:#00e5b0;--acc2:#00b88d;--blue:#3b82f6;--gold:#f59e0b;--red:#f43f5e;--txt:#dce8f5;--mut:#4d617d;--soft:#7a92b0;--r:14px;--rs:9px}
+:root{
+  --bg:#f2f7ff;--surf:#ffffff;--card:#ffffff;--card2:#eef5ff;
+  --b1:#c8dfff;--b2:#90c0ff;
+  --acc:#0077ff;--acc2:#0055cc;
+  --blue:#ffcc00;--gold:#ff9500;
+  --red:#ff3355;
+  --txt:#08203f;--mut:#8ab0d8;--soft:#3a6090;
+  --r:14px;--rs:9px
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 90% 5%,rgba(0,229,176,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 5% 95%,rgba(59,130,246,.06) 0%,transparent 60%)}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 90% 5%,rgba(255,204,0,.13) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 60% at 5% 95%,rgba(0,119,255,.12) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 0%,rgba(0,119,255,.07) 0%,transparent 50%)}
 .wrap{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 16px 120px}
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 0 6px}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.28rem;letter-spacing:-.03em}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.28rem;letter-spacing:-.03em;color:var(--txt)}
 .logo em{color:var(--acc);font-style:normal}
 .back-btn{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--soft);background:none;border:none;cursor:pointer;transition:color .2s;padding:6px 0}
 .back-btn:hover{color:var(--acc)}
 .sdot{width:8px;height:8px;border-radius:50%;background:var(--mut);transition:background .4s}
-.sdot.ok{background:var(--acc)}.sdot.off{background:var(--gold)}.sdot.busy{background:var(--blue);animation:blink .9s infinite}
+.sdot.ok{background:#00cc66;box-shadow:0 0 8px rgba(0,200,100,.5)}
+.sdot.off{background:var(--gold);box-shadow:0 0 7px rgba(255,149,0,.5)}
+.sdot.busy{background:var(--blue);animation:blink .9s infinite;box-shadow:0 0 8px rgba(255,204,0,.6)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.resumen{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:18px 20px;margin:12px 0 22px;position:relative;overflow:hidden}
-.resumen::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--blue))}
-.res-title{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:14px;font-family:'Syne',sans-serif}
+
+.resumen{background:#fff;border:2px solid var(--b1);border-radius:var(--r);padding:18px 20px;margin:12px 0 22px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,119,255,.1)}
+.resumen::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--acc),var(--blue),var(--gold))}
+.res-title{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:14px;font-family:'Syne',sans-serif}
 .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.res-item .lbl{font-size:.65rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.res-item .lbl{font-size:.65rem;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;font-weight:600}
 .res-item .val{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--txt)}
 .res-item .val.acc{color:var(--acc)}.res-item .val.gold{color:var(--gold)}
-.res-total{margin-top:14px;padding-top:14px;border-top:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
-.res-total .lbl{font-size:.75rem;color:var(--soft);font-weight:500}
-.res-total .val{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;color:var(--acc);letter-spacing:-.03em}
-.no-calc{text-align:center;padding:14px 0;font-size:.83rem;color:var(--mut);line-height:1.7}
-.no-calc a{color:var(--acc);text-decoration:none}
-.cliente-badge{display:none;margin-top:10px;padding:8px 12px;background:rgba(0,229,176,.08);border:1px solid rgba(0,229,176,.2);border-radius:8px;font-size:.73rem;color:var(--acc);line-height:1.5}
+.res-total{margin-top:14px;padding-top:14px;border-top:2px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
+.res-total .lbl{font-size:.75rem;color:var(--soft);font-weight:600}
+.res-total .val{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;color:var(--gold);letter-spacing:-.03em}
+.no-calc{text-align:center;padding:14px 0;font-size:.83rem;color:var(--soft);line-height:1.7}
+.no-calc a{color:var(--acc);text-decoration:none;font-weight:600}
+
+.cliente-badge{display:none;margin-top:10px;padding:10px 13px;background:rgba(0,119,255,.07);border:2px solid rgba(0,119,255,.22);border-radius:8px;font-size:.73rem;color:var(--acc);line-height:1.5}
 .cliente-badge.show{display:block}
 .cliente-badge strong{font-family:'Syne',sans-serif}
-.email-detect-badge{display:none;margin-bottom:6px;padding:7px 11px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-radius:8px;font-size:.72rem;color:#7eb8ff;line-height:1.5;animation:fadeIn .4s ease}
+
+.email-detect-badge{display:none;margin-bottom:6px;padding:8px 12px;background:rgba(255,204,0,.1);border:2px solid rgba(255,204,0,.35);border-radius:8px;font-size:.72rem;color:#9a7000;line-height:1.5;animation:fadeIn .4s ease}
 .email-detect-badge.show{display:flex;align-items:center;gap:7px}
 .email-detect-badge svg{flex-shrink:0;opacity:.8}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.slabel{font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:22px 0 10px}
+
+.slabel{font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin:22px 0 10px}
 .slabel span{color:var(--red)}
-.fcard{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:20px;margin-bottom:16px}
+
+.fcard{background:#fff;border:2px solid var(--b1);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,119,255,.07)}
 .field{margin-bottom:18px}.field:last-child{margin-bottom:0}
-.field label{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:500;color:var(--soft);margin-bottom:7px}
+.field label{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--soft);margin-bottom:7px}
 .field label .req{color:var(--red);font-size:.9em}
-.field label .opt{font-size:.68rem;color:var(--mut);background:var(--b1);border-radius:4px;padding:1px 5px;font-style:italic}
-.inp{width:100%;background:var(--surf);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.92rem;padding:11px 14px;transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
+.field label .opt{font-size:.68rem;color:var(--soft);background:var(--b1);border-radius:4px;padding:1px 5px;font-style:italic}
+
+.inp{width:100%;background:var(--bg);border:2px solid var(--b1);border-radius:var(--rs);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.92rem;padding:11px 14px;transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
 .inp::placeholder{color:var(--mut)}
-.inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,229,176,.1)}
-.inp.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(244,63,94,.1)}
-.inp.ok{border-color:var(--acc2)}.inp.auto{border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.05)}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,119,255,.12);background:#fff}
+.inp.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,51,85,.1)}
+.inp.ok{border-color:#00cc66;box-shadow:0 0 0 2px rgba(0,200,100,.1)}
+.inp.auto{border-color:var(--blue);background:rgba(255,204,0,.05)}
 .field-hint{font-size:.72rem;color:var(--mut);margin-top:5px;min-height:1em;transition:color .2s}
-.field-hint.err{color:var(--red)}.field-hint.ok{color:var(--acc2)}.field-hint.info{color:#7eb8ff}
+.field-hint.err{color:var(--red)}.field-hint.ok{color:#009944;font-weight:500}.field-hint.info{color:var(--acc)}
+
 .tel-wrap{position:relative}
 .tel-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.92rem;color:var(--soft);pointer-events:none;user-select:none}
 .tel-wrap .inp{padding-left:32px}
-.file-area{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px;background:var(--surf);border:1.5px dashed var(--b2);border-radius:var(--rs);cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
-.file-area:hover{border-color:var(--acc);background:rgba(0,229,176,.04)}
-.file-area.has-file{border-style:solid;border-color:var(--acc2);background:rgba(0,229,176,.06)}
-.file-area.processing{border-color:var(--gold);background:rgba(245,158,11,.06)}
+
+.file-area{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px;background:var(--bg);border:2px dashed var(--b2);border-radius:var(--rs);cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+.file-area:hover{border-color:var(--acc);background:rgba(0,119,255,.05)}
+.file-area.has-file{border-style:solid;border-color:#00cc66;background:rgba(0,200,100,.05)}
+.file-area.processing{border-color:var(--blue);background:rgba(255,204,0,.06)}
 .file-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
 .file-icon{font-size:1.6rem;line-height:1}
-.file-lbl{font-size:.8rem;font-weight:500;color:var(--soft);text-align:center}
-.file-area.has-file .file-lbl{color:var(--acc)}
-.file-preview{display:none;margin-top:10px;border-radius:var(--rs);overflow:hidden;border:1px solid var(--b2)}
+.file-lbl{font-size:.8rem;font-weight:600;color:var(--soft);text-align:center}
+.file-area.has-file .file-lbl{color:#009944}
+.file-preview{display:none;margin-top:10px;border-radius:var(--rs);overflow:hidden;border:2px solid var(--b1)}
 .file-preview.show{display:block}
 .file-preview img{width:100%;max-height:160px;object-fit:cover;display:block}
-.loc-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;background:var(--surf);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--soft);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s,color .2s}
-.loc-btn:hover{border-color:var(--acc);color:var(--txt)}
-.loc-btn.active{border-color:var(--acc2);background:rgba(0,229,176,.06);color:var(--acc)}
+
+.loc-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;background:var(--bg);border:2px solid var(--b1);border-radius:var(--rs);color:var(--soft);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:border-color .2s,background .2s,color .2s}
+.loc-btn:hover{border-color:var(--acc);color:var(--acc)}
+.loc-btn.active{border-color:#00cc66;background:rgba(0,200,100,.07);color:#009944}
 .loc-btn:disabled{opacity:.4;cursor:not-allowed}
 .loc-info{display:none;margin-top:7px;font-size:.73rem;color:var(--soft);line-height:1.5}
 .loc-info.show{display:block}
-.divider{height:1px;background:var(--b1);margin:0 0 16px}
-.progress-bar{height:3px;background:var(--b2);border-radius:99px;margin-bottom:20px;overflow:hidden;display:none}
+.divider{height:2px;background:var(--b1);margin:0 0 16px;border-radius:99px}
+
+.progress-bar{height:4px;background:var(--b1);border-radius:99px;margin-bottom:20px;overflow:hidden;display:none}
 .progress-bar.show{display:block}
-.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--blue));width:0%;transition:width .4s ease}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--blue),var(--gold));width:0%;transition:width .4s ease}
+
 .fab-wrap{position:fixed;bottom:20px;left:0;right:0;max-width:430px;margin:0 auto;padding:0 16px;z-index:100}
-.fab{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px;background:#25D366;border:none;border-radius:99px;color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(37,211,102,.35),0 2px 8px rgba(0,0,0,.4);transition:transform .15s,box-shadow .15s,background .15s;position:relative;overflow:hidden}
+.fab{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px;background:#25D366;border:none;border-radius:99px;color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(37,211,102,.35),0 2px 8px rgba(0,0,0,.15);transition:transform .15s,box-shadow .15s,background .15s;position:relative;overflow:hidden}
 .fab::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,transparent 60%);border-radius:inherit}
-.fab:hover:not(:disabled){background:#128C7E;transform:translateY(-2px);box-shadow:0 12px 40px rgba(37,211,102,.4),0 4px 12px rgba(0,0,0,.5)}
+.fab:hover:not(:disabled){background:#128C7E;transform:translateY(-2px);box-shadow:0 12px 40px rgba(37,211,102,.4)}
 .fab:active{transform:scale(.97)}
-.fab:disabled{background:var(--b2);box-shadow:none;cursor:not-allowed;color:var(--mut)}
+.fab:disabled{background:var(--b1);box-shadow:none;cursor:not-allowed;color:var(--mut)}
 .fab-loading{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:none}
 .fab.sending .fab-loading{display:block}.fab.sending .fab-icon{display:none}.fab.sending .fab-txt{opacity:.7}
 @keyframes spin{to{transform:rotate(360deg)}}
-#toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--card2);border:1px solid var(--b2);padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:200;pointer-events:none;max-width:calc(100vw - 32px)}
+
+#toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(60px);background:#fff;border:2px solid var(--b1);padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);box-shadow:0 8px 24px rgba(0,100,200,.15);transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:200;pointer-events:none;max-width:calc(100vw - 32px)}
 #toast.show{transform:translateX(-50%) translateY(0)}
-#toast.ok{border-color:rgba(0,229,176,.3);color:var(--acc)}
-#toast.err{border-color:rgba(244,63,94,.3);color:#ff6b8a}
+#toast.ok{border-color:rgba(0,200,100,.4);color:#009944}
+#toast.err{border-color:rgba(255,51,85,.3);color:var(--red)}
 @media(max-width:360px){.res-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -211,12 +238,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 const SHEET_ID='19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
 const ADMIN_SHEET='TelefonoAdmin';
 const ADMIN_FALLBACK='5214422580524';
-
-// ══════════════════════════════════════════════════════════════
-// ✅ CORRECCIÓN PRINCIPAL: USA LA URL CORRECTA DE TU WEB APP
-//    Ve a Apps Script → Implementar → Administrar implementaciones
-//    y copia la URL de tu implementación activa aquí:
-// ══════════════════════════════════════════════════════════════
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw83md07bzx1UmGRn51i-pRiuvQaEig_mUWS4VjvO0yTIlDCULqT8p3NGsSe2S4nZhzjA/exec';
 let adminPhone=ADMIN_FALLBACK,adminEmail='',calcData=null,fotoINE=null,fotoCDom=null,ubicacion=null,enviando=false;
 const gi=id=>document.getElementById(id);
@@ -225,37 +246,19 @@ function dot(m){gi('sdot').className='sdot '+(m||'');}
 let _tT;
 function toast(msg,tipo=''){clearTimeout(_tT);const el=gi('toast');el.textContent=msg;el.className='show'+(tipo?' '+tipo:'');_tT=setTimeout(()=>el.classList.remove('show'),3500);}
 function setProgress(pct){const bar=gi('progressBar'),fill=gi('progressFill');if(pct>0){bar.classList.add('show');fill.style.width=pct+'%';}else{bar.classList.remove('show');fill.style.width='0%';}}
-
-// ══════════════════════════════════════════════════════════════
-// ✅ FIX CORS: Enviar como text/plain (no dispara preflight)
-//    Apps Script recibe el JSON en e.postData.contents igual
-// ══════════════════════════════════════════════════════════════
 async function postScript(payload){
   try{
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      // ⚠️ NO usar 'Content-Type: application/json' — causa error CORS preflight
-      // text/plain no dispara preflight y Apps Script lee el body igual
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
-      redirect: 'follow'  // Apps Script redirige, necesitamos seguir el redirect
+      redirect: 'follow'
     });
     const text = await resp.text();
-    // Apps Script a veces devuelve texto con redirect, intentar parsear
-    try {
-      const json = JSON.parse(text);
-      console.log('✅ Apps Script response:', json);
-      return json;
-    } catch(e) {
-      console.warn('⚠️ Respuesta no es JSON:', text);
-      return { success: false, message: 'Respuesta inesperada del servidor' };
-    }
-  }catch(err){
-    console.warn('⚠️ postScript network error:', err.message);
-    return null;
-  }
+    try { const json = JSON.parse(text); console.log('✅ Apps Script response:', json); return json; }
+    catch(e) { console.warn('⚠️ Respuesta no es JSON:', text); return { success: false, message: 'Respuesta inesperada del servidor' }; }
+  }catch(err){ console.warn('⚠️ postScript network error:', err.message); return null; }
 }
-
 async function detectarCorreoNavegador(){
   const inp=gi('correo'),badge=gi('emailDetectBadge'),badgeTxt=gi('emailDetectTxt'),hint=gi('hintCorreo');
   const saved=localStorage.getItem('sp_correo_usuario')||sessionStorage.getItem('sp_correo_usuario');
@@ -264,7 +267,6 @@ async function detectarCorreoNavegador(){
   setTimeout(()=>{const val=inp.value.trim();if(val&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)&&!badge.classList.contains('show')){inp.className='inp auto';badge.classList.add('show');badgeTxt.textContent=`Correo autocompletado: ${val}`;hint.textContent='✓ Completado por el navegador';hint.className='field-hint info';}},800);
 }
 function guardarCorreoLocal(email){if(email&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){localStorage.setItem('sp_correo_usuario',email);sessionStorage.setItem('sp_correo_usuario',email);}}
-
 function cargarSimulacion(){
   let raw=null;
   try{raw=JSON.parse(sessionStorage.getItem('sp_last'));}catch(e){}
@@ -275,9 +277,8 @@ function renderResumen(){
   const el=gi('resContent');
   if(!calcData){el.innerHTML='<div class="no-calc">No hay simulación activa.<br><a href="index.html">← Volver al simulador</a></div>';return;}
   const{dias,capital,ip,it,tp,pd}=calcData;
-  el.innerHTML=`<div class="res-grid"><div class="res-item"><div class="lbl">Capital</div><div class="val">${fmt(capital)}</div></div><div class="res-item"><div class="lbl">Plazo</div><div class="val acc">${dias} días</div></div><div class="res-item"><div class="lbl">Tasa</div><div class="val acc">${ip}%</div></div><div class="res-item"><div class="lbl">Interés total</div><div class="val gold">${fmt(it)}</div></div></div><div class="res-total"><span class="lbl">Total a pagar</span><span class="val">${fmt(tp)}</span></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center"><span style="font-size:.68rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em">Pago diario</span><span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--soft)">${fmt(pd)}</span></div>`;
+  el.innerHTML=`<div class="res-grid"><div class="res-item"><div class="lbl">Capital</div><div class="val">${fmt(capital)}</div></div><div class="res-item"><div class="lbl">Plazo</div><div class="val acc">${dias} días</div></div><div class="res-item"><div class="lbl">Tasa</div><div class="val acc">${ip}%</div></div><div class="res-item"><div class="lbl">Interés total</div><div class="val gold">${fmt(it)}</div></div></div><div class="res-total"><span class="lbl">Total a pagar</span><span class="val">${fmt(tp)}</span></div><div style="margin-top:10px;padding-top:10px;border-top:2px solid var(--b1);display:flex;justify-content:space-between;align-items:center"><span style="font-size:.68rem;color:var(--soft);text-transform:uppercase;letter-spacing:.07em">Pago diario</span><span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--acc)">${fmt(pd)}</span></div>`;
 }
-
 async function cargarAdminPhone(){
   try{const cached=localStorage.getItem('simulador_admin');if(cached){const p=JSON.parse(cached),data=p?.data||p;if(data?.telefono)adminPhone=limpiarTelefono(data.telefono);if(data?.email)adminEmail=data.email;}}catch(e){}
   if(!navigator.onLine){dot('off');return;}
@@ -293,7 +294,6 @@ async function cargarAdminPhone(){
   }catch(e){dot(navigator.onLine?'ok':'off');}
 }
 function limpiarTelefono(tel){let t=tel.replace(/\D/g,'');if(t.startsWith('52')&&t.length===12)return t;if(t.length===10)return '52'+t;return t||ADMIN_FALLBACK;}
-
 async function verificarClienteExistente(telefono){
   if(!telefono||telefono.length<10)return null;
   try{
@@ -306,55 +306,66 @@ async function verificarClienteExistente(telefono){
   }catch(e){}
   return null;
 }
-
 async function registrarEnScript(nombre,telefono){
   const correo=gi('correo').value.trim(),nota=gi('nota').value.trim();
   if(correo)guardarCorreoLocal(correo);
-  const payload={
-    nombre,
-    telefono,
-    correo,
-    capital:    calcData?.capital    ?? '',
-    dias:       calcData?.dias       ?? '',
-    interesPct: calcData?.ip         ?? '',
-    interesM:   calcData?.it         ?? '',
-    total:      calcData?.tp         ?? '',
-    pagoDiario: calcData?.pd         ?? '',
-    latitud:    ubicacion?.lat       ?? '',
-    longitud:   ubicacion?.lng       ?? '',
-    direccion:  ubicacion?.dir       ?? '',
-    fotoINE:    fotoINE              ?? '',
-    fotoComprobante: fotoCDom        ?? '',
-    notas:      nota,
-    fecha:      new Date().toLocaleString('es-MX'),
-    estado:     'Nuevo'
-  };
+  const payload={nombre,telefono,correo,capital:calcData?.capital??'',dias:calcData?.dias??'',interesPct:calcData?.ip??'',interesM:calcData?.it??'',total:calcData?.tp??'',pagoDiario:calcData?.pd??'',latitud:ubicacion?.lat??'',longitud:ubicacion?.lng??'',direccion:ubicacion?.dir??'',fotoINE:fotoINE??'',fotoComprobante:fotoCDom??'',notas:nota,fecha:new Date().toLocaleString('es-MX'),estado:'Nuevo'};
   console.log('📤 Enviando a Apps Script:', { ...payload, fotoINE: payload.fotoINE ? '[base64...]' : '', fotoComprobante: payload.fotoComprobante ? '[base64...]' : '' });
   const res=await postScript(payload);
   console.log('📥 Respuesta Apps Script:', res);
   return res?.success===true;
 }
-
 function construirMensaje(){
   const nombre=gi('nombre').value.trim(),telefono=gi('telefono').value.trim(),correo=gi('correo').value.trim(),nota=gi('nota').value.trim();
   const ahora=new Date().toLocaleString('es-MX',{dateStyle:'long',timeStyle:'short'});
-  let msg=`🏦 *SOLICITUD DE PRÉSTAMO*\n━━━━━━━━━━━━━━━━━━━━\n📅 ${ahora}\n`;
-  if(calcData){const{dias,capital,ip,it,tp,pd}=calcData;msg+=`\n💰 *CÁLCULO DEL PRÉSTAMO*\n┌─────────────────────┐\n│ Capital:   ${fmt(capital).padStart(12,' ')} │\n│ Plazo:        ${String(dias+' días').padStart(9,' ')} │\n│ Tasa:            ${String(ip+'%').padStart(6,' ')} │\n│ Interés:   ${fmt(it).padStart(12,' ')} │\n├─────────────────────┤\n│ TOTAL:     ${fmt(tp).padStart(12,' ')} │\n│ x día:     ${fmt(pd).padStart(12,' ')} │\n└─────────────────────┘\n`;}else{msg+=`\n⚠️ _Sin simulación adjunta_\n`;}
-  msg+=`\n👤 *SOLICITANTE*\n• Nombre: *${nombre}*\n• Teléfono: ${telefono}\n`;
-  if(correo)msg+=`• Correo: ${correo}\n`;
+  let msg=`🏦 *SOLICITUD DE PRÉSTAMO*
+━━━━━━━━━━━━━━━━━━━━
+📅 ${ahora}
+`;
+  if(calcData){const{dias,capital,ip,it,tp,pd}=calcData;msg+=`
+💰 *CÁLCULO DEL PRÉSTAMO*
+┌─────────────────────┐
+│ Capital:   ${fmt(capital).padStart(12,' ')} │
+│ Plazo:        ${String(dias+' días').padStart(9,' ')} │
+│ Tasa:            ${String(ip+'%').padStart(6,' ')} │
+│ Interés:   ${fmt(it).padStart(12,' ')} │
+├─────────────────────┤
+│ TOTAL:     ${fmt(tp).padStart(12,' ')} │
+│ x día:     ${fmt(pd).padStart(12,' ')} │
+└─────────────────────┘
+`;}else{msg+=`
+⚠️ _Sin simulación adjunta_
+`;}
+  msg+=`
+👤 *SOLICITANTE*
+• Nombre: *${nombre}*
+• Teléfono: ${telefono}
+`;
+  if(correo)msg+=`• Correo: ${correo}
+`;
   const docs=[];if(fotoINE)docs.push('INE / Identificación ✅');if(fotoCDom)docs.push('Comprobante de domicilio ✅');
-  if(docs.length){msg+=`\n📎 *DOCUMENTOS*\n`;docs.forEach(d=>msg+=`• ${d}\n`);}
-  if(ubicacion){msg+=`\n📍 *UBICACIÓN*\n${ubicacion.dir}\n🗺️ https://maps.google.com/?q=${ubicacion.lat},${ubicacion.lng}\n`;}
-  if(nota)msg+=`\n📝 *NOTA*\n_${nota}_\n`;
-  msg+=`\n━━━━━━━━━━━━━━━━━━━━\n_Enviado desde SimPréstamo_`;
+  if(docs.length){msg+=`
+📎 *DOCUMENTOS*
+`;docs.forEach(d=>msg+=`• ${d}
+`);}
+  if(ubicacion){msg+=`
+📍 *UBICACIÓN*
+${ubicacion.dir}
+🗺️ https://maps.google.com/?q=${ubicacion.lat},${ubicacion.lng}
+`;}
+  if(nota)msg+=`
+📝 *NOTA*
+_${nota}_
+`;
+  msg+=`
+━━━━━━━━━━━━━━━━━━━━
+_Enviado desde SimPréstamo_`;
   return msg;
 }
-
 function validarNombre(v){if(!v||v.trim().length<3)return 'Mínimo 3 caracteres';if(!/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/.test(v.trim()))return 'Solo letras y espacios';return '';}
 function validarTelefono(v){if(!v)return 'Campo requerido';if(!/^\d{10}$/.test(v))return 'Debe tener exactamente 10 dígitos';return '';}
 function validarCorreo(v){if(!v)return '';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))return 'Correo no válido';return '';}
 function liveValidate(inputId,hintId,fn){const inp=gi(inputId),hint=gi(hintId);if(!inp||!hint)return;inp.addEventListener('input',()=>{const err=fn(inp.value);if(!inp.value){inp.className='inp';hint.textContent='';hint.className='field-hint';}else if(err){inp.className='inp error';hint.textContent=err;hint.className='field-hint err';}else{inp.className='inp ok';hint.textContent='✓ Correcto';hint.className='field-hint ok';}});}
-
 let _telTimer;
 function setupTelefonoConBusqueda(){
   const inp=gi('telefono'),hint=gi('hintTelefono'),badge=gi('clienteBadge'),info=gi('clienteInfo'),correoInp=gi('correo');
@@ -375,11 +386,9 @@ function setupTelefonoConBusqueda(){
     },600);
   });
 }
-
 async function compressImage(base64,maxW=1024,q=0.72){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h=h*maxW/w;w=maxW;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);res(canvas.toDataURL('image/jpeg',q));};img.onerror=rej;img.src=base64;});}
 function setupFile(inputId,areaId,lblId,prevId,imgId,onDone){const input=gi(inputId),area=gi(areaId),lbl=gi(lblId),prev=gi(prevId),img=gi(imgId);input.addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;if(file.size>5*1024*1024){toast('Imagen muy grande (máx. 5 MB)','err');return;}area.classList.add('processing');lbl.textContent='Procesando…';try{const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});const compressed=await compressImage(b64);onDone(compressed);img.src=compressed;prev.classList.add('show');area.classList.remove('processing');area.classList.add('has-file');lbl.textContent='✓ Imagen cargada';toast('Imagen lista ✓','ok');}catch(err){area.classList.remove('processing');lbl.textContent='Tomar foto o subir imagen';toast('Error al cargar imagen','err');}});}
 function setupUbicacion(){const btn=gi('btnLoc'),txt=gi('locTxt'),info=gi('locInfo');btn.addEventListener('click',()=>{if(!navigator.geolocation){toast('Tu navegador no soporta geolocalización','err');return;}btn.disabled=true;txt.textContent='Obteniendo…';navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude;let dir=`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);const d=await r.json();dir=d.display_name||dir;}catch(_){}ubicacion={lat,lng,dir};btn.classList.add('active');txt.textContent='✓ Ubicación obtenida';info.textContent=`📍 ${dir}`;info.classList.add('show');btn.disabled=false;toast('Ubicación capturada ✓','ok');},()=>{btn.disabled=false;txt.textContent='Compartir mi ubicación';toast('No se pudo obtener la ubicación','err');},{timeout:10000,maximumAge:60000});});}
-
 async function enviar(){
   if(enviando)return;
   const nombre=gi('nombre').value.trim(),telefono=gi('telefono').value.trim(),correo=gi('correo').value.trim();
@@ -387,54 +396,19 @@ async function enviar(){
   if(errNombre){gi('nombre').className='inp error';gi('hintNombre').textContent=errNombre;gi('hintNombre').className='field-hint err';gi('nombre').focus();toast('Verifica tu nombre','err');return;}
   if(errTel){gi('telefono').className='inp error';gi('hintTelefono').textContent=errTel;gi('hintTelefono').className='field-hint err';gi('telefono').focus();toast('Verifica tu teléfono','err');return;}
   if(errCorreo){gi('correo').className='inp error';gi('hintCorreo').textContent=errCorreo;gi('hintCorreo').className='field-hint err';gi('correo').focus();toast('Correo inválido','err');return;}
-
-  enviando=true;
-  const fab=gi('fab');
-  fab.classList.add('sending');
-  fab.disabled=true;
-
+  enviando=true;const fab=gi('fab');fab.classList.add('sending');fab.disabled=true;
   try{
-    setProgress(20);
-    toast('Registrando solicitud…');
-
-    // Registrar en Google Sheets vía Apps Script
-    let registrado = false;
-    try {
-      setProgress(40);
-      registrado = await registrarEnScript(nombre, telefono);
-    } catch(regErr) {
-      console.error('Error registrando:', regErr);
-    }
-
-    if(registrado){
-      toast('✅ Guardado en base de datos','ok');
-    } else {
-      // No bloquear — igual abrimos WhatsApp
-      toast('⚠️ No se guardó en BD, pero se enviará por WhatsApp');
-      console.warn('registrarEnScript retornó false o null');
-    }
-
-    setProgress(75);
-    const msg=construirMensaje();
-    const waUrl=`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
-
-    await new Promise(r=>setTimeout(r,600));
-    window.open(waUrl,'_blank');
-
-    setProgress(100);
-    toast('✅ Solicitud enviada correctamente','ok');
+    setProgress(20);toast('Registrando solicitud…');
+    let registrado=false;
+    try{setProgress(40);registrado=await registrarEnScript(nombre,telefono);}catch(regErr){console.error('Error registrando:',regErr);}
+    if(registrado){toast('✅ Guardado en base de datos','ok');}else{toast('⚠️ No se guardó en BD, pero se enviará por WhatsApp');console.warn('registrarEnScript retornó false o null');}
+    setProgress(75);const msg=construirMensaje();const waUrl=`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
+    await new Promise(r=>setTimeout(r,600));window.open(waUrl,'_blank');
+    setProgress(100);toast('✅ Solicitud enviada correctamente','ok');
     setTimeout(()=>{setProgress(0);window.location.href='index.html';},3200);
-
-  }catch(e){
-    console.error('Error en enviar():', e);
-    toast('Error: '+e.message,'err');
-  }finally{
-    enviando=false;
-    fab.classList.remove('sending');
-    fab.disabled=false;
-  }
+  }catch(e){console.error('Error en enviar():',e);toast('Error: '+e.message,'err');}
+  finally{enviando=false;fab.classList.remove('sending');fab.disabled=false;}
 }
-
 function init(){
   dot(navigator.onLine?'ok':'off');
   cargarSimulacion();cargarAdminPhone();detectarCorreoNavegador();
