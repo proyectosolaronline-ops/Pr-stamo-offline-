@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Solicitar Préstamo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b10;--surf:#0f1319;--card:#141a24;--card2:#19202e;--b1:#1c2535;--b2:#243047;--acc:#00e5b0;--acc2:#00b88d;--blue:#3b82f6;--gold:#f59e0b;--red:#f43f5e;--txt:#dce8f5;--mut:#4d617d;--soft:#7a92b0;--r:14px;--rs:9px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 90% 5%,rgba(0,229,176,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 5% 95%,rgba(59,130,246,.06) 0%,transparent 60%)}
+.wrap{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:0 16px 120px}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 0 6px}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.28rem;letter-spacing:-.03em}
+.logo em{color:var(--acc);font-style:normal}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--soft);background:none;border:none;cursor:pointer;transition:color .2s;padding:6px 0}
+.back-btn:hover{color:var(--acc)}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--mut);transition:background .4s}
+.sdot.ok{background:var(--acc)}.sdot.off{background:var(--gold)}.sdot.busy{background:var(--blue);animation:blink .9s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.resumen{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:18px 20px;margin:12px 0 22px;position:relative;overflow:hidden}
+.resumen::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--blue))}
+.res-title{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:14px;font-family:'Syne',sans-serif}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.res-item .lbl{font-size:.65rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.res-item .val{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--txt)}
+.res-item .val.acc{color:var(--acc)}.res-item .val.gold{color:var(--gold)}
+.res-total{margin-top:14px;padding-top:14px;border-top:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
+.res-total .lbl{font-size:.75rem;color:var(--soft);font-weight:500}
+.res-total .val{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;color:var(--acc);letter-spacing:-.03em}
+.no-calc{text-align:center;padding:14px 0;font-size:.83rem;color:var(--mut);line-height:1.7}
+.no-calc a{color:var(--acc);text-decoration:none}
+.cliente-badge{display:none;margin-top:10px;padding:8px 12px;background:rgba(0,229,176,.08);border:1px solid rgba(0,229,176,.2);border-radius:8px;font-size:.73rem;color:var(--acc);line-height:1.5}
+.cliente-badge.show{display:block}
+.cliente-badge strong{font-family:'Syne',sans-serif}
+.email-detect-badge{display:none;margin-bottom:6px;padding:7px 11px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-radius:8px;font-size:.72rem;color:#7eb8ff;line-height:1.5;animation:fadeIn .4s ease}
+.email-detect-badge.show{display:flex;align-items:center;gap:7px}
+.email-detect-badge svg{flex-shrink:0;opacity:.8}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.slabel{font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:22px 0 10px}
+.slabel span{color:var(--red)}
+.fcard{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.field{margin-bottom:18px}.field:last-child{margin-bottom:0}
+.field label{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:500;color:var(--soft);margin-bottom:7px}
+.field label .req{color:var(--red);font-size:.9em}
+.field label .opt{font-size:.68rem;color:var(--mut);background:var(--b1);border-radius:4px;padding:1px 5px;font-style:italic}
+.inp{width:100%;background:var(--surf);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.92rem;padding:11px 14px;transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
+.inp::placeholder{color:var(--mut)}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,229,176,.1)}
+.inp.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(244,63,94,.1)}
+.inp.ok{border-color:var(--acc2)}.inp.auto{border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.05)}
+.field-hint{font-size:.72rem;color:var(--mut);margin-top:5px;min-height:1em;transition:color .2s}
+.field-hint.err{color:var(--red)}.field-hint.ok{color:var(--acc2)}.field-hint.info{color:#7eb8ff}
+.tel-wrap{position:relative}
+.tel-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.92rem;color:var(--soft);pointer-events:none;user-select:none}
+.tel-wrap .inp{padding-left:32px}
+.file-area{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px;background:var(--surf);border:1.5px dashed var(--b2);border-radius:var(--rs);cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+.file-area:hover{border-color:var(--acc);background:rgba(0,229,176,.04)}
+.file-area.has-file{border-style:solid;border-color:var(--acc2);background:rgba(0,229,176,.06)}
+.file-area.processing{border-color:var(--gold);background:rgba(245,158,11,.06)}
+.file-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.file-icon{font-size:1.6rem;line-height:1}
+.file-lbl{font-size:.8rem;font-weight:500;color:var(--soft);text-align:center}
+.file-area.has-file .file-lbl{color:var(--acc)}
+.file-preview{display:none;margin-top:10px;border-radius:var(--rs);overflow:hidden;border:1px solid var(--b2)}
+.file-preview.show{display:block}
+.file-preview img{width:100%;max-height:160px;object-fit:cover;display:block}
+.loc-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;background:var(--surf);border:1.5px solid var(--b2);border-radius:var(--rs);color:var(--soft);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s,color .2s}
+.loc-btn:hover{border-color:var(--acc);color:var(--txt)}
+.loc-btn.active{border-color:var(--acc2);background:rgba(0,229,176,.06);color:var(--acc)}
+.loc-btn:disabled{opacity:.4;cursor:not-allowed}
+.loc-info{display:none;margin-top:7px;font-size:.73rem;color:var(--soft);line-height:1.5}
+.loc-info.show{display:block}
+.divider{height:1px;background:var(--b1);margin:0 0 16px}
+.progress-bar{height:3px;background:var(--b2);border-radius:99px;margin-bottom:20px;overflow:hidden;display:none}
+.progress-bar.show{display:block}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--blue));width:0%;transition:width .4s ease}
+.fab-wrap{position:fixed;bottom:20px;left:0;right:0;max-width:430px;margin:0 auto;padding:0 16px;z-index:100}
+.fab{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px;background:#25D366;border:none;border-radius:99px;color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(37,211,102,.35),0 2px 8px rgba(0,0,0,.4);transition:transform .15s,box-shadow .15s,background .15s;position:relative;overflow:hidden}
+.fab::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,transparent 60%);border-radius:inherit}
+.fab:hover:not(:disabled){background:#128C7E;transform:translateY(-2px);box-shadow:0 12px 40px rgba(37,211,102,.4),0 4px 12px rgba(0,0,0,.5)}
+.fab:active{transform:scale(.97)}
+.fab:disabled{background:var(--b2);box-shadow:none;cursor:not-allowed;color:var(--mut)}
+.fab-loading{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:none}
+.fab.sending .fab-loading{display:block}.fab.sending .fab-icon{display:none}.fab.sending .fab-txt{opacity:.7}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--card2);border:1px solid var(--b2);padding:9px 18px;border-radius:99px;font-size:.8rem;color:var(--txt);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:200;pointer-events:none;max-width:calc(100vw - 32px)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:rgba(0,229,176,.3);color:var(--acc)}
+#toast.err{border-color:rgba(244,63,94,.3);color:#ff6b8a}
+@media(max-width:360px){.res-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hdr">
+    <div class="logo">Sim<em>Préstamo</em></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="sdot" id="sdot"></div>
+      <button class="back-btn" onclick="history.back()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Simulador
+      </button>
+    </div>
+  </header>
+  <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="resumen" id="resumen">
+    <div class="res-title">Tu simulación</div>
+    <div id="resContent"><div class="no-calc">No hay simulación activa.<br><a href="index.html">← Volver al simulador</a></div></div>
+  </div>
+  <p class="slabel">Datos personales <span>*</span> requeridos</p>
+  <div class="fcard">
+    <div class="field">
+      <label for="nombre">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Nombre completo <span class="req">*</span>
+      </label>
+      <input class="inp" type="text" id="nombre" placeholder="Ej: Juan Pérez García" autocomplete="name" inputmode="text">
+      <div class="field-hint" id="hintNombre"></div>
+    </div>
+    <div class="field">
+      <label for="telefono">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.35 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.49 7.49l.96-.96a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17z"/></svg>
+        Teléfono (10 dígitos) <span class="req">*</span>
+      </label>
+      <div class="tel-wrap">
+        <span class="tel-prefix">+52</span>
+        <input class="inp" type="tel" id="telefono" placeholder="4421234567" maxlength="10" autocomplete="tel" inputmode="numeric">
+      </div>
+      <div class="field-hint" id="hintTelefono"></div>
+    </div>
+    <div class="field">
+      <label for="correo">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Correo electrónico <span class="opt">para notificaciones</span>
+      </label>
+      <div class="email-detect-badge" id="emailDetectBadge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="emailDetectTxt">Correo detectado automáticamente</span>
+      </div>
+      <input class="inp" type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email" inputmode="email">
+      <div class="field-hint" id="hintCorreo"></div>
+    </div>
+  </div>
+  <div class="cliente-badge" id="clienteBadge">
+    <strong>👤 Cliente registrado</strong><br>
+    <span id="clienteInfo"></span>
+  </div>
+  <p class="slabel">Información adicional <span style="color:var(--soft)">opcional</span></p>
+  <div class="fcard">
+    <div class="field">
+      <label>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Identificación oficial (INE/IFE) <span class="opt">opcional</span>
+      </label>
+      <div class="file-area" id="areaINE">
+        <input type="file" id="fileINE" accept="image/*" capture="environment">
+        <div class="file-icon">📷</div>
+        <div class="file-lbl" id="lblINE">Tomar foto o subir imagen</div>
+      </div>
+      <div class="file-preview" id="prevINE"><img id="imgINE" src="" alt="INE"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <label>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Comprobante de domicilio <span class="opt">opcional</span>
+      </label>
+      <div class="file-area" id="areaCDom">
+        <input type="file" id="fileCDom" accept="image/*" capture="environment">
+        <div class="file-icon">🏠</div>
+        <div class="file-lbl" id="lblCDom">Tomar foto o subir imagen</div>
+      </div>
+      <div class="file-preview" id="prevCDom"><img id="imgCDom" src="" alt="Comprobante"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <label>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Ubicación <span class="opt">opcional</span>
+      </label>
+      <button type="button" class="loc-btn" id="btnLoc">
+        <span>📍</span><span id="locTxt">Compartir mi ubicación</span>
+      </button>
+      <div class="loc-info" id="locInfo"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <label for="nota">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Nota o comentario <span class="opt">opcional</span>
+      </label>
+      <textarea class="inp" id="nota" rows="3" placeholder="¿Algo que quieras agregar?" style="resize:vertical;min-height:76px;line-height:1.5"></textarea>
+    </div>
+  </div>
+</div>
+<div class="fab-wrap">
+  <button class="fab" id="fab" onclick="enviar()">
+    <svg class="fab-icon" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="white" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+    </svg>
+    <div class="fab-loading"></div>
+    <span class="fab-txt">Enviar solicitud por WhatsApp</span>
+  </button>
+</div>
+<div id="toast"></div>
+<script>
+const SHEET_ID='19Viesr9Lhy347A9L03J_RuxftUhBduaYsBY206IO6X8';
+const ADMIN_SHEET='TelefonoAdmin';
+const ADMIN_FALLBACK='5214422580524';
+
+// ══════════════════════════════════════════════════════════════
+// ✅ CORRECCIÓN PRINCIPAL: USA LA URL CORRECTA DE TU WEB APP
+//    Ve a Apps Script → Implementar → Administrar implementaciones
+//    y copia la URL de tu implementación activa aquí:
+// ══════════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw83md07bzx1UmGRn51i-pRiuvQaEig_mUWS4VjvO0yTIlDCULqT8p3NGsSe2S4nZhzjA/exec';
+let adminPhone=ADMIN_FALLBACK,adminEmail='',calcData=null,fotoINE=null,fotoCDom=null,ubicacion=null,enviando=false;
+const gi=id=>document.getElementById(id);
+function fmt(n){return'$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function dot(m){gi('sdot').className='sdot '+(m||'');}
+let _tT;
+function toast(msg,tipo=''){clearTimeout(_tT);const el=gi('toast');el.textContent=msg;el.className='show'+(tipo?' '+tipo:'');_tT=setTimeout(()=>el.classList.remove('show'),3500);}
+function setProgress(pct){const bar=gi('progressBar'),fill=gi('progressFill');if(pct>0){bar.classList.add('show');fill.style.width=pct+'%';}else{bar.classList.remove('show');fill.style.width='0%';}}
+
+// ══════════════════════════════════════════════════════════════
+// ✅ FIX CORS: Enviar como text/plain (no dispara preflight)
+//    Apps Script recibe el JSON en e.postData.contents igual
+// ══════════════════════════════════════════════════════════════
+async function postScript(payload){
+  try{
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      // ⚠️ NO usar 'Content-Type: application/json' — causa error CORS preflight
+      // text/plain no dispara preflight y Apps Script lee el body igual
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow'  // Apps Script redirige, necesitamos seguir el redirect
+    });
+    const text = await resp.text();
+    // Apps Script a veces devuelve texto con redirect, intentar parsear
+    try {
+      const json = JSON.parse(text);
+      console.log('✅ Apps Script response:', json);
+      return json;
+    } catch(e) {
+      console.warn('⚠️ Respuesta no es JSON:', text);
+      return { success: false, message: 'Respuesta inesperada del servidor' };
+    }
+  }catch(err){
+    console.warn('⚠️ postScript network error:', err.message);
+    return null;
+  }
+}
+
+async function detectarCorreoNavegador(){
+  const inp=gi('correo'),badge=gi('emailDetectBadge'),badgeTxt=gi('emailDetectTxt'),hint=gi('hintCorreo');
+  const saved=localStorage.getItem('sp_correo_usuario')||sessionStorage.getItem('sp_correo_usuario');
+  if(saved&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(saved)){inp.value=saved;inp.className='inp auto';badge.classList.add('show');badgeTxt.textContent=`Correo recordado: ${saved}`;hint.textContent='✓ Correo guardado de tu sesión anterior';hint.className='field-hint info';return;}
+  if(window.PasswordCredential&&navigator.credentials){try{const cred=await navigator.credentials.get({password:true,mediation:'silent'});if(cred&&cred.id&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cred.id)){inp.value=cred.id;inp.className='inp auto';badge.classList.add('show');badgeTxt.textContent=`Correo detectado: ${cred.id}`;hint.textContent='✓ Detectado desde tus credenciales guardadas';hint.className='field-hint info';localStorage.setItem('sp_correo_usuario',cred.id);return;}}catch(_){}}
+  setTimeout(()=>{const val=inp.value.trim();if(val&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)&&!badge.classList.contains('show')){inp.className='inp auto';badge.classList.add('show');badgeTxt.textContent=`Correo autocompletado: ${val}`;hint.textContent='✓ Completado por el navegador';hint.className='field-hint info';}},800);
+}
+function guardarCorreoLocal(email){if(email&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){localStorage.setItem('sp_correo_usuario',email);sessionStorage.setItem('sp_correo_usuario',email);}}
+
+function cargarSimulacion(){
+  let raw=null;
+  try{raw=JSON.parse(sessionStorage.getItem('sp_last'));}catch(e){}
+  if(!raw){try{const sel=JSON.parse(sessionStorage.getItem('sp_sel')||'{}');const interesRaw=localStorage.getItem('simulador_interes');if(sel.dias&&sel.capital&&interesRaw){const interesObj=JSON.parse(interesRaw);const interes=interesObj?.data||interesObj;const ip=interes[sel.dias];if(ip!==undefined){const it=sel.capital*(ip/100),tp=sel.capital+it;raw={dias:sel.dias,capital:sel.capital,ip,it,tp,pd:tp/sel.dias};}}}catch(e){}}
+  calcData=raw;renderResumen();
+}
+function renderResumen(){
+  const el=gi('resContent');
+  if(!calcData){el.innerHTML='<div class="no-calc">No hay simulación activa.<br><a href="index.html">← Volver al simulador</a></div>';return;}
+  const{dias,capital,ip,it,tp,pd}=calcData;
+  el.innerHTML=`<div class="res-grid"><div class="res-item"><div class="lbl">Capital</div><div class="val">${fmt(capital)}</div></div><div class="res-item"><div class="lbl">Plazo</div><div class="val acc">${dias} días</div></div><div class="res-item"><div class="lbl">Tasa</div><div class="val acc">${ip}%</div></div><div class="res-item"><div class="lbl">Interés total</div><div class="val gold">${fmt(it)}</div></div></div><div class="res-total"><span class="lbl">Total a pagar</span><span class="val">${fmt(tp)}</span></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center"><span style="font-size:.68rem;color:var(--mut);text-transform:uppercase;letter-spacing:.07em">Pago diario</span><span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--soft)">${fmt(pd)}</span></div>`;
+}
+
+async function cargarAdminPhone(){
+  try{const cached=localStorage.getItem('simulador_admin');if(cached){const p=JSON.parse(cached),data=p?.data||p;if(data?.telefono)adminPhone=limpiarTelefono(data.telefono);if(data?.email)adminEmail=data.email;}}catch(e){}
+  if(!navigator.onLine){dot('off');return;}
+  try{
+    dot('busy');
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(ADMIN_SHEET)}`;
+    const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);
+    const txt=await r.text();
+    const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
+    const rows=json.table?.rows||[];
+    for(let i=1;i<rows.length;i++){const fila=rows[i];const tel=fila?.c?.[2]?.v,email=fila?.c?.[3]?.v,activo=fila?.c?.[4]?.v;if(tel&&String(activo).toUpperCase()==='TRUE'){adminPhone=limpiarTelefono(String(tel));adminEmail=email?String(email).trim():'';localStorage.setItem('simulador_admin',JSON.stringify({data:{telefono:adminPhone,email:adminEmail},ts:Date.now()}));break;}}
+    dot('ok');
+  }catch(e){dot(navigator.onLine?'ok':'off');}
+}
+function limpiarTelefono(tel){let t=tel.replace(/\D/g,'');if(t.startsWith('52')&&t.length===12)return t;if(t.length===10)return '52'+t;return t||ADMIN_FALLBACK;}
+
+async function verificarClienteExistente(telefono){
+  if(!telefono||telefono.length<10)return null;
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Clientes`;
+    const r=await fetch(url,{cache:'no-store'});if(!r.ok)return null;
+    const txt=await r.text();
+    const json=JSON.parse(txt.replace(/^[\s\S]*?setResponse\(/,'').replace(/\);[\s\S]*$/,''));
+    const rows=json.table?.rows||[];
+    for(let i=1;i<rows.length;i++){const row=rows[i];const telSheet=String(row?.c?.[2]?.v||'').trim();if(telSheet===telefono.trim()){return{idCliente:row?.c?.[0]?.v||'',nombre:row?.c?.[1]?.v||'',telefono:row?.c?.[2]?.v||'',ubicacion:row?.c?.[3]?.v||'',correo:row?.c?.[4]?.v||'',fotoIne:row?.c?.[5]?.v||'',fotoComp:row?.c?.[6]?.v||'',totalSims:row?.c?.[7]?.v||0,estado:row?.c?.[8]?.v||''};}}
+  }catch(e){}
+  return null;
+}
+
+async function registrarEnScript(nombre,telefono){
+  const correo=gi('correo').value.trim(),nota=gi('nota').value.trim();
+  if(correo)guardarCorreoLocal(correo);
+  const payload={
+    nombre,
+    telefono,
+    correo,
+    capital:    calcData?.capital    ?? '',
+    dias:       calcData?.dias       ?? '',
+    interesPct: calcData?.ip         ?? '',
+    interesM:   calcData?.it         ?? '',
+    total:      calcData?.tp         ?? '',
+    pagoDiario: calcData?.pd         ?? '',
+    latitud:    ubicacion?.lat       ?? '',
+    longitud:   ubicacion?.lng       ?? '',
+    direccion:  ubicacion?.dir       ?? '',
+    fotoINE:    fotoINE              ?? '',
+    fotoComprobante: fotoCDom        ?? '',
+    notas:      nota,
+    fecha:      new Date().toLocaleString('es-MX'),
+    estado:     'Nuevo'
+  };
+  console.log('📤 Enviando a Apps Script:', { ...payload, fotoINE: payload.fotoINE ? '[base64...]' : '', fotoComprobante: payload.fotoComprobante ? '[base64...]' : '' });
+  const res=await postScript(payload);
+  console.log('📥 Respuesta Apps Script:', res);
+  return res?.success===true;
+}
+
+function construirMensaje(){
+  const nombre=gi('nombre').value.trim(),telefono=gi('telefono').value.trim(),correo=gi('correo').value.trim(),nota=gi('nota').value.trim();
+  const ahora=new Date().toLocaleString('es-MX',{dateStyle:'long',timeStyle:'short'});
+  let msg=`🏦 *SOLICITUD DE PRÉSTAMO*\n━━━━━━━━━━━━━━━━━━━━\n📅 ${ahora}\n`;
+  if(calcData){const{dias,capital,ip,it,tp,pd}=calcData;msg+=`\n💰 *CÁLCULO DEL PRÉSTAMO*\n┌─────────────────────┐\n│ Capital:   ${fmt(capital).padStart(12,' ')} │\n│ Plazo:        ${String(dias+' días').padStart(9,' ')} │\n│ Tasa:            ${String(ip+'%').padStart(6,' ')} │\n│ Interés:   ${fmt(it).padStart(12,' ')} │\n├─────────────────────┤\n│ TOTAL:     ${fmt(tp).padStart(12,' ')} │\n│ x día:     ${fmt(pd).padStart(12,' ')} │\n└─────────────────────┘\n`;}else{msg+=`\n⚠️ _Sin simulación adjunta_\n`;}
+  msg+=`\n👤 *SOLICITANTE*\n• Nombre: *${nombre}*\n• Teléfono: ${telefono}\n`;
+  if(correo)msg+=`• Correo: ${correo}\n`;
+  const docs=[];if(fotoINE)docs.push('INE / Identificación ✅');if(fotoCDom)docs.push('Comprobante de domicilio ✅');
+  if(docs.length){msg+=`\n📎 *DOCUMENTOS*\n`;docs.forEach(d=>msg+=`• ${d}\n`);}
+  if(ubicacion){msg+=`\n📍 *UBICACIÓN*\n${ubicacion.dir}\n🗺️ https://maps.google.com/?q=${ubicacion.lat},${ubicacion.lng}\n`;}
+  if(nota)msg+=`\n📝 *NOTA*\n_${nota}_\n`;
+  msg+=`\n━━━━━━━━━━━━━━━━━━━━\n_Enviado desde SimPréstamo_`;
+  return msg;
+}
+
+function validarNombre(v){if(!v||v.trim().length<3)return 'Mínimo 3 caracteres';if(!/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/.test(v.trim()))return 'Solo letras y espacios';return '';}
+function validarTelefono(v){if(!v)return 'Campo requerido';if(!/^\d{10}$/.test(v))return 'Debe tener exactamente 10 dígitos';return '';}
+function validarCorreo(v){if(!v)return '';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))return 'Correo no válido';return '';}
+function liveValidate(inputId,hintId,fn){const inp=gi(inputId),hint=gi(hintId);if(!inp||!hint)return;inp.addEventListener('input',()=>{const err=fn(inp.value);if(!inp.value){inp.className='inp';hint.textContent='';hint.className='field-hint';}else if(err){inp.className='inp error';hint.textContent=err;hint.className='field-hint err';}else{inp.className='inp ok';hint.textContent='✓ Correcto';hint.className='field-hint ok';}});}
+
+let _telTimer;
+function setupTelefonoConBusqueda(){
+  const inp=gi('telefono'),hint=gi('hintTelefono'),badge=gi('clienteBadge'),info=gi('clienteInfo'),correoInp=gi('correo');
+  inp.addEventListener('input',()=>{
+    clearTimeout(_telTimer);const val=inp.value.trim(),err=validarTelefono(val);
+    if(!val){inp.className='inp';hint.textContent='';hint.className='field-hint';badge.classList.remove('show');return;}
+    if(err){inp.className='inp error';hint.textContent=err;hint.className='field-hint err';badge.classList.remove('show');return;}
+    inp.className='inp ok';hint.textContent='Buscando en base de datos…';hint.className='field-hint info';
+    _telTimer=setTimeout(async()=>{
+      const cliente=await verificarClienteExistente(val);
+      if(cliente){
+        inp.className='inp ok';hint.textContent='✓ Cliente encontrado';hint.className='field-hint ok';
+        badge.classList.add('show');info.innerHTML=`ID: <strong>${cliente.idCliente}</strong> · ${cliente.totalSims} simulación(es)<br>Estado: ${cliente.estado||'Activo'}`;
+        const nombreInp=gi('nombre');if(!nombreInp.value&&cliente.nombre&&cliente.nombre!=='Sin datos'){nombreInp.value=cliente.nombre;nombreInp.className='inp auto';gi('hintNombre').textContent='✓ Nombre recuperado de tu historial';gi('hintNombre').className='field-hint info';}
+        if(!correoInp.value&&cliente.correo){correoInp.value=cliente.correo;correoInp.className='inp auto';gi('hintCorreo').textContent='✓ Correo recuperado de tu historial';gi('hintCorreo').className='field-hint info';gi('emailDetectBadge').classList.add('show');gi('emailDetectTxt').textContent=`Correo de tu historial: ${cliente.correo}`;guardarCorreoLocal(cliente.correo);}
+        toast('Cliente encontrado en base de datos ✓','ok');
+      }else{badge.classList.remove('show');hint.textContent='✓ Número válido';hint.className='field-hint ok';}
+    },600);
+  });
+}
+
+async function compressImage(base64,maxW=1024,q=0.72){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');let w=img.width,h=img.height;if(w>maxW){h=h*maxW/w;w=maxW;}canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);res(canvas.toDataURL('image/jpeg',q));};img.onerror=rej;img.src=base64;});}
+function setupFile(inputId,areaId,lblId,prevId,imgId,onDone){const input=gi(inputId),area=gi(areaId),lbl=gi(lblId),prev=gi(prevId),img=gi(imgId);input.addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;if(file.size>5*1024*1024){toast('Imagen muy grande (máx. 5 MB)','err');return;}area.classList.add('processing');lbl.textContent='Procesando…';try{const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});const compressed=await compressImage(b64);onDone(compressed);img.src=compressed;prev.classList.add('show');area.classList.remove('processing');area.classList.add('has-file');lbl.textContent='✓ Imagen cargada';toast('Imagen lista ✓','ok');}catch(err){area.classList.remove('processing');lbl.textContent='Tomar foto o subir imagen';toast('Error al cargar imagen','err');}});}
+function setupUbicacion(){const btn=gi('btnLoc'),txt=gi('locTxt'),info=gi('locInfo');btn.addEventListener('click',()=>{if(!navigator.geolocation){toast('Tu navegador no soporta geolocalización','err');return;}btn.disabled=true;txt.textContent='Obteniendo…';navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude;let dir=`Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);const d=await r.json();dir=d.display_name||dir;}catch(_){}ubicacion={lat,lng,dir};btn.classList.add('active');txt.textContent='✓ Ubicación obtenida';info.textContent=`📍 ${dir}`;info.classList.add('show');btn.disabled=false;toast('Ubicación capturada ✓','ok');},()=>{btn.disabled=false;txt.textContent='Compartir mi ubicación';toast('No se pudo obtener la ubicación','err');},{timeout:10000,maximumAge:60000});});}
+
+async function enviar(){
+  if(enviando)return;
+  const nombre=gi('nombre').value.trim(),telefono=gi('telefono').value.trim(),correo=gi('correo').value.trim();
+  const errNombre=validarNombre(nombre),errTel=validarTelefono(telefono),errCorreo=validarCorreo(correo);
+  if(errNombre){gi('nombre').className='inp error';gi('hintNombre').textContent=errNombre;gi('hintNombre').className='field-hint err';gi('nombre').focus();toast('Verifica tu nombre','err');return;}
+  if(errTel){gi('telefono').className='inp error';gi('hintTelefono').textContent=errTel;gi('hintTelefono').className='field-hint err';gi('telefono').focus();toast('Verifica tu teléfono','err');return;}
+  if(errCorreo){gi('correo').className='inp error';gi('hintCorreo').textContent=errCorreo;gi('hintCorreo').className='field-hint err';gi('correo').focus();toast('Correo inválido','err');return;}
+
+  enviando=true;
+  const fab=gi('fab');
+  fab.classList.add('sending');
+  fab.disabled=true;
+
+  try{
+    setProgress(20);
+    toast('Registrando solicitud…');
+
+    // Registrar en Google Sheets vía Apps Script
+    let registrado = false;
+    try {
+      setProgress(40);
+      registrado = await registrarEnScript(nombre, telefono);
+    } catch(regErr) {
+      console.error('Error registrando:', regErr);
+    }
+
+    if(registrado){
+      toast('✅ Guardado en base de datos','ok');
+    } else {
+      // No bloquear — igual abrimos WhatsApp
+      toast('⚠️ No se guardó en BD, pero se enviará por WhatsApp');
+      console.warn('registrarEnScript retornó false o null');
+    }
+
+    setProgress(75);
+    const msg=construirMensaje();
+    const waUrl=`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
+
+    await new Promise(r=>setTimeout(r,600));
+    window.open(waUrl,'_blank');
+
+    setProgress(100);
+    toast('✅ Solicitud enviada correctamente','ok');
+    setTimeout(()=>{setProgress(0);window.location.href='index.html';},3200);
+
+  }catch(e){
+    console.error('Error en enviar():', e);
+    toast('Error: '+e.message,'err');
+  }finally{
+    enviando=false;
+    fab.classList.remove('sending');
+    fab.disabled=false;
+  }
+}
+
+function init(){
+  dot(navigator.onLine?'ok':'off');
+  cargarSimulacion();cargarAdminPhone();detectarCorreoNavegador();
+  liveValidate('nombre','hintNombre',validarNombre);
+  liveValidate('correo','hintCorreo',validarCorreo);
+  setupTelefonoConBusqueda();
+  gi('correo').addEventListener('blur',()=>guardarCorreoLocal(gi('correo').value.trim()));
+  gi('telefono').addEventListener('keypress',e=>{if(!/\d/.test(e.key))e.preventDefault();});
+  setupFile('fileINE','areaINE','lblINE','prevINE','imgINE',d=>fotoINE=d);
+  setupFile('fileCDom','areaCDom','lblCDom','prevCDom','imgCDom',d=>fotoCDom=d);
+  setupUbicacion();
+  window.addEventListener('online',()=>{dot('busy');cargarAdminPhone();});
+  window.addEventListener('offline',()=>dot('off'));
+}
+init();
+</script>
+</body>
+</html>
